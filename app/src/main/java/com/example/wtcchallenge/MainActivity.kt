@@ -51,7 +51,5 @@ fun WTCApp(modifier: Modifier = Modifier) {
         }
     }
 
-
-
     }
 
