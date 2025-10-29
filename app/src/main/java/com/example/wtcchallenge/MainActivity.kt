@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.wtcchallenge.composables.LoginScreen
+import com.example.wtcchallenge.composables.ClientListScreen
 import com.example.wtcchallenge.composables.MessagesScreen
 import com.example.wtcchallenge.composables.Screen
 import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
@@ -27,31 +28,30 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WTCChallengeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) {innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     WTCApp(modifier = Modifier.padding(innerPadding))
-                }
                 }
             }
         }
     }
+}
 
 
 @Composable
 fun WTCApp(modifier: Modifier = Modifier) {
     val nav = rememberNavController()
 
-    NavHost(navController= nav, startDestination = Screen.Login.route,modifier=modifier) {
-        composable(Screen.Login.route){
+    NavHost(navController = nav, startDestination = Screen.Login.route, modifier = modifier) {
+        composable(Screen.Login.route) {
             LoginScreen(
-                onLogin = {nav.navigate(Screen.Messages.route)}
+                onLogin = { nav.navigate(Screen.Messages.route) }
             )
         }
-        composable(Screen.Messages.route){
+        composable(Screen.Messages.route) {
             MessagesScreen(navController = nav)
         }
     }
 
 
-
-    }
+}
 
