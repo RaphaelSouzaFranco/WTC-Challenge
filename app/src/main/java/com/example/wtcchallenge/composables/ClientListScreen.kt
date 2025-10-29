@@ -84,7 +84,11 @@ fun ClientListScreen() {
                 ),
                 actions = {
                     IconButton(onClick = {}) {
-                        Icon(Icons.Default.Add, contentDescription = "Adicionar Cliente", tint = Color.White)
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Adicionar Cliente",
+                            tint = Color.White
+                        )
                     }
                 }
             )
@@ -118,7 +122,11 @@ fun ClientListScreen() {
                     unfocusedTextColor = Color.White
                 ),
                 leadingIcon = {
-                    Icon(Icons.Default.Search, contentDescription = "Ícone de busca", tint = Color(0xFF9EABBA))
+                    Icon(
+                        Icons.Default.Search,
+                        contentDescription = "Ícone de busca",
+                        tint = Color(0xFF9EABBA)
+                    )
                 },
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -217,7 +225,10 @@ fun ClientRow(cliente: Cliente) {
             Box(
                 modifier = Modifier
                     .size(8.dp)
-                    .background(Color(0xFF2E7D32), shape = CircleShape) // Usamos CircleShape aqui também
+                    .background(
+                        Color(0xFF2E7D32),
+                        shape = CircleShape
+                    ) // Usamos CircleShape aqui também
             )
         }
     }
@@ -235,7 +246,12 @@ fun FiltroItem(text: String) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
         ) {
-            Text(text = text, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = text,
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold
+            )
             Spacer(modifier = Modifier.width(4.dp))
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
@@ -253,7 +269,6 @@ fun FiltroItem(text: String) {
 fun ClientListScreenPreview() {
     WTCChallengeTheme {
         Surface(color = Color(0xFF0D0D0D)) {
-            // Chama a tela principal, que agora tem a lógica de navegação dentro
             ClientListScreen()
         }
     }

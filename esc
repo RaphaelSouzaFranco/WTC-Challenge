@@ -1,0 +1,351 @@
+[33mcommit 4404b0f89377cab35ec0734e9517b0bdb3672e7a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Aline de Oliveira Ciriaco <aline.id@hotmail.com.br>
+Date:   Wed Oct 29 01:21:20 2025 -0300
+
+    Salvando alterações antes de mudar para a branch Aline
+
+[1mdiff --git a/.idea/.gitignore b/.idea/.gitignore[m
+[1mdeleted file mode 100644[m
+[1mindex 26d3352..0000000[m
+[1m--- a/.idea/.gitignore[m
+[1m+++ /dev/null[m
+[36m@@ -1,3 +0,0 @@[m
+[31m-# Default ignored files[m
+[31m-/shelf/[m
+[31m-/workspace.xml[m
+[1mdiff --git a/.idea/misc.xml b/.idea/misc.xml[m
+[1mindex 74dd639..b2c751a 100644[m
+[1m--- a/.idea/misc.xml[m
+[1m+++ b/.idea/misc.xml[m
+[36m@@ -1,4 +1,3 @@[m
+[31m-<?xml version="1.0" encoding="UTF-8"?>[m
+ <project version="4">[m
+   <component name="ExternalStorageConfigurationManager" enabled="true" />[m
+   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="jbr-21" project-jdk-type="JavaSDK">[m
+[1mdiff --git a/app/src/main/java/com/example/wtcchallenge/MainActivity.kt b/app/src/main/java/com/example/wtcchallenge/MainActivity.kt[m
+[1mindex 43ec6dc..e5105ea 100644[m
+[1m--- a/app/src/main/java/com/example/wtcchallenge/MainActivity.kt[m
+[1m+++ b/app/src/main/java/com/example/wtcchallenge/MainActivity.kt[m
+[36m@@ -16,6 +16,7 @@[m [mimport androidx.navigation.compose.NavHost[m
+ import androidx.navigation.compose.composable[m
+ import androidx.navigation.compose.rememberNavController[m
+ import com.example.wtcchallenge.composables.LoginScreen[m
+[32m+[m[32mimport com.example.wtcchallenge.composables.ClientListScreen[m
+ import com.example.wtcchallenge.composables.MessagesScreen[m
+ import com.example.wtcchallenge.composables.Screen[m
+ import com.example.wtcchallenge.ui.theme.WTCChallengeTheme[m
+[36m@@ -27,31 +28,30 @@[m [mclass MainActivity : ComponentActivity() {[m
+         enableEdgeToEdge()[m
+         setContent {[m
+             WTCChallengeTheme {[m
+[31m-                Scaffold(modifier = Modifier.fillMaxSize()) {innerPadding ->[m
+[32m+[m[32m                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->[m
+                     WTCApp(modifier = Modifier.padding(innerPadding))[m
+                 }[m
+[31m-                }[m
+             }[m
+         }[m
+     }[m
+[32m+[m[32m}[m
+ [m
+ [m
+ @Composable[m
+ fun WTCApp(modifier: Modifier = Modifier) {[m
+     val nav = rememberNavController()[m
+ [m
+[31m-    NavHost(navController= nav, startDestination = Screen.Login.route,modifier=modifier) {[m
+[31m-        composable(Screen.Login.route){[m
+[32m+[m[32m    NavHost(navController = nav, startDestination = Screen.Login.route, modifier = modifier) {[m
+[32m+[m[32m        composable(Screen.Login.route) {[m
+             LoginScreen([m
+[31m-                onLogin = {nav.navigate(Screen.Messages.route)}[m
+[32m+[m[32m                onLogin = { nav.navigate(Screen.Messages.route) }[m
+             )[m
+         }[m
+[31m-        composable(Screen.Messages.route){[m
+[32m+[m[32m        composable(Screen.Messages.route) {[m
+             MessagesScreen(navController = nav)[m
+         }[m
+     }[m
+ [m
+ [m
+[31m-[m
+[31m-    }[m
+[32m+[m[32m}[m
+ [m
+[1mdiff --git a/app/src/main/java/com/example/wtcchallenge/composables/CampaignScreen.kt b/app/src/main/java/com/example/wtcchallenge/composables/CampaignScreen.kt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..5cdcf1f[m
+[1m--- /dev/null[m
+[1m+++ b/app/src/main/java/com/example/wtcchallenge/composables/CampaignScreen.kt[m
+[36m@@ -0,0 +1,3 @@[m
+[32m+[m[32mpackage com.example.wtcchallenge.composables[m
+[32m+[m
+[32m+[m
+[1mdiff --git a/app/src/main/java/com/example/wtcchallenge/composables/ClientListScreen.kt b/app/src/main/java/com/example/wtcchallenge/composables/ClientListScreen.kt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..3e52704[m
+[1m--- /dev/null[m
+[1m+++ b/app/src/main/java/com/example/wtcchallenge/composables/ClientListScreen.kt[m
+[36m@@ -0,0 +1,260 @@[m
+[32m+[m[32mpackage com.example.wtcchallenge.composables[m
+[32m+[m
+[32m+[m[32mimport androidx.compose.foundation.background[m
+[32m+[m[32mimport androidx.compose.foundation.clickable[m
+[32m+[m[32mimport androidx.compose.foundation.layout.*[m
+[32m+[m[32mimport androidx.compose.foundation.lazy.LazyColumn[m
+[32m+[m[32mimport androidx.compose.foundation.lazy.items[m
+[32m+[m[32mimport androidx.compose.foundation.shape.CircleShape[m
+[32m+[m[32mimport androidx.compose.foundation.shape.RoundedCornerShape[m
+[32m+[m[32mimport androidx.compose.material.icons.Icons[m
+[32m+[m[32mimport androidx.compose.material.icons.filled.*[m
+[32m+[m[32mimport androidx.compose.material3.*[m
+[32m+[m[32mimport androidx.compose.runtime.*[m
+[32m+[m[32mimport androidx.compose.ui.Alignment[m
+[32m+[m[32mimport androidx.compose.ui.Modifier[m
+[32m+[m[32mimport androidx.compose.ui.draw.clip[m
+[32m+[m[32mimport androidx.compose.ui.graphics.Color[m
+[32m+[m[32mimport androidx.compose.ui.text.font.FontWeight[m
+[32m+[m[32mimport androidx.compose.ui.text.input.TextFieldValue[m
+[32m+[m[32mimport androidx.compose.ui.tooling.preview.Preview[m
+[32m+[m[32mimport androidx.compose.ui.unit.dp[m
+[32m+[m[32mimport androidx.compose.ui.unit.sp[m
+[32m+[m[32mimport androidx.navigation.NavController[m
+[32m+[m[32mimport androidx.navigation.compose.rememberNavController[m
+[32m+[m[32mimport com.example.wtcchallenge.ui.theme.WTCChallengeTheme[m
+[32m+[m
+[32m+[m[32m// =========================================================[m
+[32m+[m[32m// 1. DATA CLASS E CLASSES DE NAVEGAÇÃO[m
+[32m+[m[32m// =========================================================[m
+[32m+[m
+[32m+[m[32mdata class Cliente([m
+[32m+[m[32m    val nome: String,[m
+[32m+[m[32m    val numero: String,[m
+[32m+[m[32m    val ramo: String[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m
+[32m+[m[32m// =========================================================[m
+[32m+[m[32m// 2. TELA PRINCIPAL[m
+[32m+[m[32m// =========================================================[m
+[32m+[m
+[32m+[m[32m@OptIn(ExperimentalMaterial3Api::class)[m
+[32m+[m[32m@Composable[m
+[32m+[m[32mfun ClientListScreen() {[m
+[32m+[m[32m    // ESTADO 1: Para a barra de busca[m
+[32m+[m[32m    var textoBusca by remember { mutableStateOf(TextFieldValue("")) }[m
+[32m+[m
+[32m+[m[32m    // ESTADO 2: Variáveis de navegação (CORREÇÃO DE ESCOPO)[m
+[32m+[m[32m    val navController: NavController = rememberNavController() // Para o Preview[m
+[32m+[m[32m    val currentRoute: String = Screen.Client.route[m
+[32m+[m
+[32m+[m[32m    // ESTADO 3: Lista de Clientes (Mutável para futuras adições/exclusões)[m
+[32m+[m[32m    val clientes = remember {[m
+[32m+[m[32m        mutableStateListOf([m
+[32m+[m[32m            Cliente(nome = "ACME Corp", numero = "123456", ramo = "Tecnologia"),[m
+[32m+[m[32m            Cliente(nome = "Consultoria Alfa", numero = "789012", ramo = "Finanças"),[m
+[32m+[m[32m            Cliente(nome = "Logística Rápida", numero = "345678", ramo = "Logística"),[m
+[32m+[m[32m            Cliente(nome = "Estúdio Criativo", numero = "987654", ramo = "Marketing"),[m
+[32m+[m[32m            Cliente(nome = "Saúde Vital", numero = "109876", ramo = "Saúde"),[m
+[32m+[m[32m        )[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // LÓGICA DE BUSCA E FILTRO[m
+[32m+[m[32m    val textoBuscaString = textoBusca.text[m
+[32m+[m[32m    val clientesFiltrados = remember(clientes, textoBuscaString) {[m
+[32m+[m[32m        if (textoBuscaString.isBlank()) {[m
+[32m+[m[32m            clientes[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            clientes.filter { cliente ->[m
+[32m+[m[32m                cliente.nome.contains(textoBuscaString, ignoreCase = true) ||[m
+[32m+[m[32m                        cliente.ramo.contains(textoBuscaString, ignoreCase = true)[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    Scaffold([m
+[32m+[m[32m        containerColor = (Color(0xFF121417)), // Fundo escuro[m
+[32m+[m[32m        topBar = {[m
+[32m+[m[32m            CenterAlignedTopAppBar([m
+[32m+[m[32m                title = { Text("Lista de Clientes", fontWeight = FontWeight.SemiBold) },[m
+[32m+[m[32m                colors = TopAppBarDefaults.topAppBarColors([m
+[32m+[m[32m                    containerColor = Color(0xFF121417),[m
+[32m+[m[32m                    titleContentColor = Color.White[m
+[32m+[m[32m                ),[m
+[32m+[m[32m                actions = {[m
+[32m+[m[32m                    IconButton(onClick = {}) {[m
+[32m+[m[32m                        Icon(Icons.Default.Add, contentDescription = "Adicionar Cliente", tint = Color.White)[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                }[m
+[32m+[m[32m            )[m
+[32m+[m[32m        },[m
+[32m+[m[32m        bottomBar = {[m
+[32m+[m[32m            BottomNavigationBar(navController = navController, currentRoute = currentRoute)[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m    ) { paddingValues ->[m
+[32m+[m[32m        Column([m
+[32m+[m[32m            modifier = Modifier[m
+[32m+[m[32m                .fillMaxWidth()[m
+[32m+[m[32m                .padding(paddingValues)[m
+[32m+[m[32m                .padding(horizontal = 16.dp)[m
+[32m+[m[32m        ) {[m
+[32m+[m[32m            Spacer(modifier = Modifier.height(8.dp))[m
+[32m+[m
+[32m+[m[32m            // BARRA DE BUSCA[m
+[32m+[m[32m            TextField([m
+[32m+[m[32m                value = textoBusca,[m
+[32m+[m[32m                onValueChange = { textoBusca = it },[m
+[32m+[m[32m                placeholder = { Text("Buscar cliente", color = Color(0xFF9EABBA)) },[m
+[32m+[m[32m                singleLine = true,[m
+[32m+[m[32m                colors = TextFieldDefaults.colors([m
+[32m+[m[32m                    focusedContainerColor = Color(0xFF293038),[m
+[32m+[m[32m                    unfocusedContainerColor = Color(0xFF293038),[m
+[32m+[m[32m                    focusedIndicatorColor = Color.Transparent,[m
+[32m+[m[32m                    unfocusedIndicatorColor = Color.Transparent,[m
+[32m+[m[32m                    cursorColor = Color.White,[m
+[32m+[m[32m                    focusedTextColor = Color.White,[m
+[32m+[m[32m                    unfocusedTextColor = Color.White[m
+[32m+[m[32m                ),[m
+[32m+[m[32m                leadingIcon = {[m
+[32m+[m[32m                    Icon(Icons.Default.Search, contentDescription = "Ícone de busca", tint = Color(0xFF9EABBA))[m
+[32m+[m[32m                },[m
+[32m+[m[32m                shape = RoundedCornerShape(8.dp),[m
+[32m+[m[32m                modifier = Modifier[m
+[32m+[m[32m                    .fillMaxWidth()[m
+[32m+[m[32m                    .padding(bottom = 12.dp)[m
+[32m+[m[32m            )[m
+[32m+[m
+[32m+[m[32m            Spacer(modifier = Modifier.height(16.dp))[m
+[32m+[m
+[32m+[m[32m            // LINHA DE FILTROS[m
+[32m+[m[32m            Row([m
+[32m+[m[32m                modifier = Modifier.fillMaxWidth(),[m
+[32m+[m[32m                horizontalArrangement = Arrangement.SpaceBetween[m
+[32m+[m[32m            ) {[m
+[32m+[m[32m                FiltroItem(text = "Tags")[m
+[32m+[m[32m                FiltroItem(text = "Score")[m
+[32m+[m[32m                FiltroItem(text = "Status")[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            Spacer(modifier = Modifier.height(16.dp))[m
+[32m+[m
+[32m+[m[32m            // LISTA DE CLIENTES[m
+[32m+[m[32m            LazyColumn([m
+[32m+[m[32m                modifier = Modifier.fillMaxSize()[m
+[32m+[m[32m            ) {[m
+[32m+[m[32m                items(clientesFiltrados) { cliente -> // Usa a lista FILTRADA[m
+[32m+[m[32m                    ClientRow(cliente = cliente)[m
+[32m+[m[32m                    // Linha Divisória[m
+[32m+[m[32m                    Divider(color = Color(0xFF293038), thickness = 1.dp)[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// =========================================================[m
+[32m+[m[32m// 3. COMPONENTES REUTILIZÁVEIS[m
+[32m+[m[32m// =========================================================[m
+[32m+[m
+[32m+[m[32m@Composable[m
+[32m+[m[32mfun ClientRow(cliente: Cliente) {[m
+[32m+[m[32m    // Estado para expandir/recolher o número do cliente[m
+[32m+[m[32m    var isExpanded by remember { mutableStateOf(false) }[m
+[32m+[m
+[32m+[m[32m    Row([m
+[32m+[m[32m        modifier = Modifier[m
+[32m+[m[32m            .fillMaxWidth()[m
+[32m+[m[32m            .clickable { isExpanded = !isExpanded } // Torna a linha clicável[m
+[32m+[m[32m            .padding(vertical = 12.dp),[m
+[32m+[m[32m        horizontalArrangement = Arrangement.SpaceBetween,[m
+[32m+[m[32m        verticalAlignment = Alignment.CenterVertically[m
+[32m+[m[32m    ) {[m
+[32m+[m[32m        // LADO ESQUERDO: Foto + Nome/Ramo[m
+[32m+[m[32m        Row(verticalAlignment = Alignment.CenterVertically) {[m
+[32m+[m
+[32m+[m[32m            // FOTO CIRCULAR (Placeholder)[m
+[32m+[m[32m            Box([m
+[32m+[m[32m                modifier = Modifier[m
+[32m+[m[32m                    .size(40.dp)[m
+[32m+[m[32m                    .clip(CircleShape)[m
+[32m+[m[32m                    .background(Color(0xFF424242)),[m
+[32m+[m[32m                contentAlignment = Alignment.Center[m
+[32m+[m[32m            ) {}[m
+[32m+[m
+[32m+[m[32m            Spacer(modifier = Modifier.width(16.dp))[m
+[32m+[m
+[32m+[m[32m            // NOME E RAMO[m
+[32m+[m[32m            Column {[m
+[32m+[m[32m                Text([m
+[32m+[m[32m                    text = cliente.nome,[m
+[32m+[m[32m                    color = Color.White,[m
+[32m+[m[32m                    fontWeight = FontWeight.Bold,[m
+[32m+[m[32m                    fontSize = 16.sp[m
+[32m+[m[32m                )[m
+[32m+[m[32m                Text([m
+[32m+[m[32m                    text = cliente.ramo,[m
+[32m+[m[32m                    color = Color(0xFF9EABBA),[m
+[32m+[m[32m                    fontSize = 12.sp[m
+[32m+[m[32m                )[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        // LADO DIREITO: Número (Se Expandido) + Status[m
+[32m+[m[32m        Row(verticalAlignment = Alignment.CenterVertically) {[m
+[32m+[m[32m            if (isExpanded) {[m
+[32m+[m[32m                Text([m
+[32m+[m[32m                    text = cliente.numero,[m
+[32m+[m[32m                    color = Color.White,[m
+[32m+[m[32m                    fontSize = 14.sp,[m
+[32m+[m[32m                    fontWeight = FontWeight.SemiBold[m
+[32m+[m[32m                )[m
+[32m+[m[32m                Spacer(modifier = Modifier.width(8.dp))[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            // Ícone de Status (Bolha Verde)[m
+[32m+[m[32m            Box([m
+[32m+[m[32m                modifier = Modifier[m
+[32m+[m[32m                    .size(8.dp)[m
+[32m+[m[32m                    .background(Color(0xFF2E7D32), shape = CircleShape) // Usamos CircleShape aqui também[m
+[32m+[m[32m            )[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m@Composable[m
+[32m+[m[32mfun FiltroItem(text: String) {[m
+[32m+[m[32m    Surface([m
+[32m+[m[32m        shape = RoundedCornerShape(8.dp),[m
+[32m+[m[32m        color = Color(0xFF293038),[m
+[32m+[m[32m        modifier = Modifier.clickable {}[m
+[32m+[m[32m    )[m
+[32m+[m[32m    {[m
+[32m+[m[32m        Row([m
+[32m+[m[32m            verticalAlignment = Alignment.CenterVertically,[m
+[32m+[m[32m            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)[m
+[32m+[m[32m        ) {[m
+[32m+[m[32m            Text(text = text, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)[m
+[32m+[m[32m            Spacer(modifier = Modifier.width(4.dp))[m
+[32m+[m[32m            Icon([m
+[32m+[m[32m                imageVector = Icons.Default.KeyboardArrowDown,[m
+[32m+[m[32m                contentDescription = "Filtro de $text",[m
+[32m+[m[32m                tint = Color.White,[m
+[32m+[m[32m                modifier = Modifier.height(18.dp)[m
+[32m+[m[32m            )[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m@Preview(showBackground = true)[m
+[32m+[m[32m@Composable[m
+[32m+[m[32mfun ClientListScreenPreview() {[m
+[32m+[m[32m    WTCChallengeTheme {[m
+[32m+[m[32m        Surface(color = Color(0xFF0D0D0D)) {[m
+[32m+[m[32m            // Chama a tela principal, que agora tem a lógica de navegação dentro[m
+[32m+[m[32m            ClientListScreen()[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
