@@ -31,10 +31,10 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) {innerPadding ->
                     WTCApp(modifier = Modifier.padding(innerPadding))
                 }
-                }
             }
         }
     }
+}
 
 
 @Composable
@@ -52,37 +52,44 @@ fun WTCApp(modifier: Modifier = Modifier) {
                 onProfileClick = {nav.navigate(Screen.Profile.route)},
                 onCampaignClick = {nav.navigate(Screen.Campaign.route)},
                 onMessagesClick = {nav.navigate(Screen.Messages.route)},
-                onClientClick = {nav.navigate(Screen.Client.route)}
+                onClientClick = {nav.navigate(Screen.Client.route)},
+                onChatClick = {nav.navigate(Screen.Chat.route)}
             )
         }
 
         composable(Screen.Chat.route){
-            SupportScreen(onProfileClick = {nav.navigate(Screen.Profile.route)},
+            SupportScreen(
+                onProfileClick = {nav.navigate(Screen.Profile.route)},
                 onCampaignClick = {nav.navigate(Screen.Campaign.route)},
                 onMessagesClick = {nav.navigate(Screen.Messages.route)},
-                onClientClick = {nav.navigate(Screen.Client.route)})
+                onClientClick = {nav.navigate(Screen.Client.route)}
+            )
         }
 
         composable(Screen.Client.route){
-            ClientListScreen(onProfileClick = {nav.navigate(Screen.Profile.route)},
+            ClientListScreen(
+                onProfileClick = {nav.navigate(Screen.Profile.route)},
                 onCampaignClick = {nav.navigate(Screen.Campaign.route)},
                 onMessagesClick = {nav.navigate(Screen.Messages.route)},
-                onClientClick = {nav.navigate(Screen.Client.route)})
+                onClientClick = {nav.navigate(Screen.Client.route)}
+            )
         }
         composable(Screen.Campaign.route){
-            CampaignScreen(onProfileClick = {nav.navigate(Screen.Profile.route)},
+            CampaignScreen(
+                onProfileClick = {nav.navigate(Screen.Profile.route)},
                 onCampaignClick = {nav.navigate(Screen.Campaign.route)},
                 onMessagesClick = {nav.navigate(Screen.Messages.route)},
-                onClientClick = {nav.navigate(Screen.Client.route)})
+                onClientClick = {nav.navigate(Screen.Client.route)}
+            )
         }
 
         composable(Screen.Profile.route){
-            ProfileScreen(onProfileClick = {nav.navigate(Screen.Profile.route)},
+            ProfileScreen(
+                onProfileClick = {nav.navigate(Screen.Profile.route)},
                 onCampaignClick = {nav.navigate(Screen.Campaign.route)},
                 onMessagesClick = {nav.navigate(Screen.Messages.route)},
-                onClientClick = {nav.navigate(Screen.Client.route)})
+                onClientClick = {nav.navigate(Screen.Client.route)}
+            )
         }
     }
-
-    }
-
+}

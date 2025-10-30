@@ -23,13 +23,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.wtcchallenge.composables.Client
 
 @Composable
-fun ConversationItem(name: String) {
+fun ConversationItem(
+    cliente: Client,  // MUDOU: agora recebe Client ao invés de String
+    onClick: () -> Unit  // ADICIONADO: callback para clique
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* ação futura */ },
+            .clickable { onClick() },  // MUDOU: chama o callback
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Placeholder circular para imagem do cliente
@@ -53,13 +57,13 @@ fun ConversationItem(name: String) {
 
         Column {
             Text(
-                text = name,
+                text = cliente.nome,  // MUDOU: usa cliente.nome
                 color = Color.White,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp
             )
             Text(
-                text = "Nova mensagem",
+                text = "${cliente.ramo} • Score: ${cliente.score}",  // MUDOU: mostra info do cliente
                 color = Color(0xFF9EABBA),
                 fontSize = 14.sp
             )
