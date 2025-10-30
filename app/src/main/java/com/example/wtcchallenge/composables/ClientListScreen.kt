@@ -57,6 +57,7 @@ fun ClientListScreen() {
             Cliente(nome = "Logística Rápida", numero = "345678", ramo = "Logística"),
             Cliente(nome = "Estúdio Criativo", numero = "987654", ramo = "Marketing"),
             Cliente(nome = "Saúde Vital", numero = "109876", ramo = "Saúde"),
+
         )
     }
 
