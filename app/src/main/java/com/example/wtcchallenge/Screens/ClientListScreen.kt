@@ -23,6 +23,7 @@ import com.example.wtcchallenge.network.RetrofitInstance
 import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 import kotlinx.coroutines.launch
 
+//INICIO DA FUNÇÃO
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClientListScreen(
