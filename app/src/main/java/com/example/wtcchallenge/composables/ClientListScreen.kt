@@ -1,108 +1,81 @@
-package com.example.wtcchallenge.composables.screens
+package com.example.wtcchallenge.composables
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.wtcchallenge.composables.ClientRow
-import com.example.wtcchallenge.composables.Cliente
-import com.example.wtcchallenge.composables.FiltroItem
-import com.example.wtcchallenge.composables.ScoreFilterSlider
-import com.example.wtcchallenge.composables.StatusFilterDropdown
-import com.example.wtcchallenge.composables.BottomNavigationBar
-import com.example.wtcchallenge.composables.Screen
 import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 
 // =========================================================
-// 2️⃣ TELA PRINCIPAL – LISTAGEM DE CLIENTES
+// 1. DATA CLASS E CLASSES DE NAVEGAÇÃO
 // =========================================================
+
+data class Cliente(
+    val nome: String,
+    val numero: String,
+    val ramo: String
+)
+
+
+// =========================================================
+// 2. TELA PRINCIPAL
+// =========================================================
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClientListScreen() {
-
-    // 🔹 Estado da barra de busca
+    // ESTADO 1: Para a barra de busca
     var textoBusca by remember { mutableStateOf(TextFieldValue("")) }
 
-    // 🔹 Estados de filtro e ordenação
-    var tipoOrdenacao by remember { mutableStateOf("Nome (A-Z)") }
-    var filtroStatusSelecionado by remember { mutableStateOf("Todos") }
-    var filtroScoreMinimo by remember { mutableStateOf(0) }
-
-    // 🔹 Controle de navegação (mockado)
-    val navController: NavController = rememberNavController()
+    // ESTADO 2: Variáveis de navegação (CORREÇÃO DE ESCOPO)
+    val navController: NavController = rememberNavController() // Para o Preview
     val currentRoute: String = Screen.Client.route
 
-    // 🔹 Lista inicial de clientes (mock)
+    // ESTADO 3: Lista de Clientes (Mutável para futuras adições/exclusões)
     val clientes = remember {
         mutableStateListOf(
-            Cliente("ACME Corp", "123456", "Tecnologia", "Ativo", listOf("VIP", "Contrato"), 950),
-            Cliente("Consultoria Alfa", "789012", "Finanças", "Ativo", listOf("VIP", "Contrato"), 950),
-            Cliente("Logística Rápida", "345678", "Logística", "Novo", listOf("Lead"), 550),
-            Cliente("Estúdio Criativo", "987654", "Marketing", "Ativo", listOf("Acompanhamento"), 750),
-            Cliente("Saúde Vital", "109876", "Saúde", "Inativo", listOf("Antigo"), 300),
+            Cliente(nome = "ACME Corp", numero = "123456", ramo = "Tecnologia"),
+            Cliente(nome = "Consultoria Alfa", numero = "789012", ramo = "Finanças"),
+            Cliente(nome = "Logística Rápida", numero = "345678", ramo = "Logística"),
+            Cliente(nome = "Estúdio Criativo", numero = "987654", ramo = "Marketing"),
+            Cliente(nome = "Saúde Vital", numero = "109876", ramo = "Saúde"),
         )
     }
 
-    // =========================================================
-    //  FILTRO, BUSCA E ORDENAÇÃO DE CLIENTES
-    // =========================================================
+    // LÓGICA DE BUSCA E FILTRO
     val textoBuscaString = textoBusca.text
-
-    val clientesFiltrados = remember(
-        clientes,
-        textoBuscaString,
-        filtroStatusSelecionado,
-        filtroScoreMinimo,
-        tipoOrdenacao
-    ) {
-        // 1️⃣ Filtra pelo texto digitado (nome ou ramo)
-        val clientesAposBusca = if (textoBuscaString.isBlank()) clientes else {
-            clientes.filter {
-                it.nome.contains(textoBuscaString, ignoreCase = true) ||
-                        it.ramo.contains(textoBuscaString, ignoreCase = true)
-            }
-        }
-
-        // 2️⃣ Filtra pelo status selecionado
-        val clientesAposStatus = if (filtroStatusSelecionado == "Todos") {
-            clientesAposBusca
+    val clientesFiltrados = remember(clientes, textoBuscaString) {
+        if (textoBuscaString.isBlank()) {
+            clientes
         } else {
-            clientesAposBusca.filter { it.status == filtroStatusSelecionado }
-        }
-
-        // 3️⃣ Filtra por score mínimo
-        val clientesAposScore = clientesAposStatus.filter { it.score >= filtroScoreMinimo }
-
-        // 4️⃣ Ordena conforme o tipo de ordenação escolhido
-        when (tipoOrdenacao) {
-            "Nome (A-Z)" -> clientesAposScore.sortedBy { it.nome }
-            "Score (Maior)" -> clientesAposScore.sortedByDescending { it.score }
-            "Score (Menor)" -> clientesAposScore.sortedBy { it.score }
-            else -> clientesAposScore
+            clientes.filter { cliente ->
+                cliente.nome.contains(textoBuscaString, ignoreCase = true) ||
+                        cliente.ramo.contains(textoBuscaString, ignoreCase = true)
+            }
         }
     }
 
-    // =========================================================
-    //  ESTRUTURA DE TELA (SCAFFOLD)
-    // =========================================================
     Scaffold(
-        containerColor = Color(0xFF121417),
+        containerColor = (Color(0xFF121417)), // Fundo escuro
         topBar = {
-            // 🔸 Barra superior com título e botão de adicionar
             CenterAlignedTopAppBar(
                 title = { Text("Lista de Clientes", fontWeight = FontWeight.SemiBold) },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -110,28 +83,26 @@ fun ClientListScreen() {
                     titleContentColor = Color.White
                 ),
                 actions = {
-                    IconButton(onClick = {
-                        clientes.add(
-                            Cliente(
-                                "Novo Cliente", "00000000000000",
-                                "Recente", "Novo", listOf("Lead"), 10
-                            )
+                    IconButton(onClick = {}) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Adicionar Cliente",
+                            tint = Color.White
                         )
-                    }) {
-                        Icon(Icons.Default.Add, contentDescription = "Adicionar Cliente", tint = Color.White)
                     }
                 }
             )
         },
         bottomBar = {
-            // 🔸 Barra inferior de navegação
-            BottomNavigationBar(navController = navController, currentRoute = currentRoute)
+            BottomNavigationBar(
+                onMessagesClick = { navController.navigate(Screen.Messages.route) },
+                onCampaignClick = { navController.navigate(Screen.Campaign.route) },
+                onClientClick = { navController.navigate(Screen.Client.route) },
+                onProfileClick = { navController.navigate(Screen.Profile.route) }
+            )
         }
-    ) { paddingValues ->
 
-        // =========================================================
-        //  CONTEÚDO PRINCIPAL
-        // =========================================================
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -140,7 +111,7 @@ fun ClientListScreen() {
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 🔹 Campo de busca
+            // BARRA DE BUSCA
             TextField(
                 value = textoBusca,
                 onValueChange = { textoBusca = it },
@@ -156,38 +127,39 @@ fun ClientListScreen() {
                     unfocusedTextColor = Color.White
                 ),
                 leadingIcon = {
-                    Icon(Icons.Default.Search, contentDescription = "Buscar", tint = Color(0xFF9EABBA))
+                    Icon(
+                        Icons.Default.Search,
+                        contentDescription = "Ícone de busca",
+                        tint = Color(0xFF9EABBA)
+                    )
                 },
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 🔹 Linha com filtros (Score, Status, etc.)
+            // LINHA DE FILTROS
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                ScoreFilterSlider(
-                    currentScore = filtroScoreMinimo,
-                    onScoreChanged = { filtroScoreMinimo = it }
-                )
-
+                FiltroItem(text = "Tags")
                 FiltroItem(text = "Score")
-
-                StatusFilterDropdown(
-                    currentStatus = filtroStatusSelecionado,
-                    onStatusSelected = { filtroStatusSelecionado = it }
-                )
+                FiltroItem(text = "Status")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 🔹 Lista de clientes
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(clientesFiltrados) { cliente ->
+            // LISTA DE CLIENTES
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(clientesFiltrados) { cliente -> // Usa a lista FILTRADA
                     ClientRow(cliente = cliente)
+                    // Linha Divisória
                     Divider(color = Color(0xFF293038), thickness = 1.dp)
                 }
             }
@@ -196,9 +168,6 @@ fun ClientListScreen() {
 }
 
 
-// =========================================================
-// 4️⃣ PREVIEW – VISUALIZAÇÃO NO ANDROID STUDIO
-// =========================================================
 @Preview(showBackground = true)
 @Composable
 fun ClientListScreenPreview() {
