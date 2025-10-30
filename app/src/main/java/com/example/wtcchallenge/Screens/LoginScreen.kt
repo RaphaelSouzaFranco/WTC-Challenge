@@ -1,4 +1,4 @@
-package com.example.wtcchallenge.composables
+package com.example.wtcchallenge.Screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -1,4 +1,4 @@
-package com.example.wtcchallenge.composables
+package com.example.wtcchallenge.Screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -79,7 +79,7 @@ fun SupportScreen(onMessagesClick: () -> Unit,
             )
         },
         bottomBar = {
-            BottomNavigationBar(
+            _root_ide_package_.com.example.wtcchallenge.composables.BottomNavigationBar(
                 onMessagesClick = onMessagesClick,
                 onCampaignClick = onCampaignClick,
                 onClientClick = onClientClick,
@@ -102,14 +102,18 @@ fun SupportScreen(onMessagesClick: () -> Unit,
             ) {
                 items(messages) { message ->
                     when {
-                        message.isButton -> TrackOrderButton()
-                        message.isFromUser -> UserMessage(message.text)
-                        else -> SupportMessage(message.text)
+                        message.isButton -> _root_ide_package_.com.example.wtcchallenge.composables.TrackOrderButton()
+                        message.isFromUser -> _root_ide_package_.com.example.wtcchallenge.composables.UserMessage(
+                            message.text
+                        )
+                        else -> _root_ide_package_.com.example.wtcchallenge.composables.SupportMessage(
+                            message.text
+                        )
                     }
                 }
             }
 
-            ChatBottomBar(
+            _root_ide_package_.com.example.wtcchallenge.composables.ChatBottomBar(
                 messageText = messageText,
                 onMessageChange = { messageText = it },
                 onSendClick = {
