@@ -9,6 +9,6 @@ data class Client(
     val numero: String,
     val ramo: String,
     val status: String,
-    val tags: List<String>,
+    val tags: String,
     val score: Int
 )

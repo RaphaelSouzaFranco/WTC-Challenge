@@ -15,11 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
-import com.example.wtcchallenge.composables.Cliente
+import com.example.wtcchallenge.composables.Client
 
 // 🔸 Cada linha da lista de clientes
 @Composable
-fun ClientRow(cliente: Cliente) {
+fun ClientRow(cliente: Client) {
     var isExpanded by remember { mutableStateOf(false) }
 
     Row(

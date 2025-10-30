@@ -19,6 +19,7 @@ import com.example.wtcchallenge.composables.ClientListScreen
 import com.example.wtcchallenge.composables.LoginScreen
 import com.example.wtcchallenge.composables.MessagesScreen
 import com.example.wtcchallenge.composables.Screen
+import com.example.wtcchallenge.composables.SupportScreen
 import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 
 
@@ -48,11 +49,19 @@ fun WTCApp(modifier: Modifier = Modifier) {
             )
         }
         composable(Screen.Messages.route){
-            MessagesScreen(navController = nav)
+            MessagesScreen(
+                onProfileClick = {nav.navigate(Screen.Profile.route)},
+                onCampaignClick = {nav.navigate(Screen.Campaign.route)},
+                onMessagesClick = {nav.navigate(Screen.Messages.route)},
+                onClientClick = {nav.navigate(Screen.Client.route)}
+            )
         }
 
-        composable(Screen.Client.route){
-            ClientListScreen()
+        composable(Screen.Chat.route){
+            SupportScreen(onProfileClick = {nav.navigate(Screen.Profile.route)},
+                onCampaignClick = {nav.navigate(Screen.Campaign.route)},
+                onMessagesClick = {nav.navigate(Screen.Messages.route)},
+                onClientClick = {nav.navigate(Screen.Client.route)})
         }
     }
 

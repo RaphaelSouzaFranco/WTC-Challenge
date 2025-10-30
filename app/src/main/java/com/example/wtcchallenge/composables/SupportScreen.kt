@@ -26,7 +26,11 @@ data class ChatMessage(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SupportScreen(navController: NavController) {
+fun SupportScreen(onMessagesClick: () -> Unit,
+                  onCampaignClick: () -> Unit,
+                  onClientClick: () -> Unit,
+                  onProfileClick: () -> Unit,
+                 ) {
     var messageText by remember { mutableStateOf(TextFieldValue("")) }
     var messages by remember {
         mutableStateOf(
@@ -61,7 +65,7 @@ fun SupportScreen(navController: NavController) {
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = {onMessagesClick()}) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Voltar",
@@ -76,10 +80,10 @@ fun SupportScreen(navController: NavController) {
         },
         bottomBar = {
             BottomNavigationBar(
-                onMessagesClick = { navController.navigate(Screen.Messages.route) },
-                onCampaignClick = { navController.navigate(Screen.Campaign.route) },
-                onClientClick = { navController.navigate(Screen.Client.route) },
-                onProfileClick = { navController.navigate(Screen.Profile.route) }
+                onMessagesClick = onMessagesClick,
+                onCampaignClick = onCampaignClick,
+                onClientClick = onClientClick,
+                onProfileClick = onProfileClick
             )
         }
     )
@@ -124,7 +128,10 @@ fun SupportScreenPreview() {
     WTCChallengeTheme {
         val navController = rememberNavController()
         Surface(color = Color(0xFF0D0D0D)) {
-            SupportScreen(navController = navController)
+            SupportScreen(onMessagesClick = {},
+                onClientClick = {},
+                onCampaignClick = {},
+                onProfileClick = {})
         }
     }
 }

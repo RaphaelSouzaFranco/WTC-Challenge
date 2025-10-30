@@ -24,40 +24,29 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 
-// =========================================================
-// 1. DATA CLASS E CLASSES DE NAVEGAÇÃO
-// =========================================================
-
-data class Cliente(
-    val nome: String,
-    val numero: String,
-    val ramo: String
-)
 
 
 // =========================================================
-// 2. TELA PRINCIPAL
+// 1. TELA PRINCIPAL
 // =========================================================
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClientListScreen() {
+fun ClientListScreen(onMessagesClick: () -> Unit,
+                     onCampaignClick: () -> Unit,
+                     onClientClick: () -> Unit,
+                     onProfileClick: () -> Unit) {
     // ESTADO 1: Para a barra de busca
     var textoBusca by remember { mutableStateOf(TextFieldValue("")) }
-
-    // ESTADO 2: Variáveis de navegação (CORREÇÃO DE ESCOPO)
-    val navController: NavController = rememberNavController() // Para o Preview
-    val currentRoute: String = Screen.Client.route
 
     // ESTADO 3: Lista de Clientes (Mutável para futuras adições/exclusões)
     val clientes = remember {
         mutableStateListOf(
-            Cliente(nome = "ACME Corp", numero = "123456", ramo = "Tecnologia"),
-            Cliente(nome = "Consultoria Alfa", numero = "789012", ramo = "Finanças"),
-            Cliente(nome = "Logística Rápida", numero = "345678", ramo = "Logística"),
-            Cliente(nome = "Estúdio Criativo", numero = "987654", ramo = "Marketing"),
-            Cliente(nome = "Saúde Vital", numero = "109876", ramo = "Saúde"),
-
+            Client(nome = "ACME Corp", numero = "123456", ramo = "Tecnologia", status = "Ativo", tags = "Tecnologia", score = 950),
+            Client(nome = "Consultoria Alfa", numero = "789012", ramo = "Finanças", status = "Inativo", tags = "Finança", score = 820),
+            Client(nome = "Logística Rápida", numero = "345678", ramo = "Logística", status = "Ativo", tags = "Logística", score = 980),
+            Client(nome = "Estúdio Criativo", numero = "987654", ramo = "Marketing", status = "Ativo", tags = "Marketing", score = 970),
+            Client(nome = "Saúde Vital", numero = "109876", ramo = "Saúde", status = "Inativo", tags = "Saúde", score = 890),
         )
     }
 
@@ -96,10 +85,10 @@ fun ClientListScreen() {
         },
         bottomBar = {
             BottomNavigationBar(
-                onMessagesClick = { navController.navigate(Screen.Messages.route) },
-                onCampaignClick = { navController.navigate(Screen.Campaign.route) },
-                onClientClick = { navController.navigate(Screen.Client.route) },
-                onProfileClick = { navController.navigate(Screen.Profile.route) }
+                onMessagesClick = onMessagesClick,
+                onCampaignClick = onCampaignClick,
+                onClientClick = onClientClick,
+                onProfileClick = onProfileClick
             )
         }
 
@@ -174,7 +163,10 @@ fun ClientListScreen() {
 fun ClientListScreenPreview() {
     WTCChallengeTheme {
         Surface(color = Color(0xFF0D0D0D)) {
-            ClientListScreen()
+            ClientListScreen(onMessagesClick = {},
+                onClientClick = {},
+                onCampaignClick = {},
+                onProfileClick = {})
         }
     }
 }
