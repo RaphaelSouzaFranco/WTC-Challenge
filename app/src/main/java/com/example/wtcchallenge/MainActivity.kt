@@ -63,6 +63,16 @@ fun WTCApp(modifier: Modifier = Modifier) {
                 onMessagesClick = {nav.navigate(Screen.Messages.route)},
                 onClientClick = {nav.navigate(Screen.Client.route)})
         }
+
+        composable(Screen.Client.route){
+            ClientListScreen(onProfileClick = {nav.navigate(Screen.Profile.route)},
+                onCampaignClick = {nav.navigate(Screen.Campaign.route)},
+                onMessagesClick = {nav.navigate(Screen.Messages.route)},
+                onClientClick = {nav.navigate(Screen.Client.route)})
+        }
+
+
+
     }
 
 

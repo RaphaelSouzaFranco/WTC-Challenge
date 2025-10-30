@@ -22,15 +22,16 @@ import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 // =========================================================
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CampaignScreen() {
+fun CampaignScreen(onMessagesClick: () -> Unit,
+                   onCampaignClick: () -> Unit,
+                   onClientClick: () -> Unit,
+                   onProfileClick: () -> Unit) {
     // 🔹 Estados
     var titulo by remember { mutableStateOf(TextFieldValue("")) }
     var mensagem by remember { mutableStateOf(TextFieldValue("")) }
     var targetAudience by remember { mutableStateOf("Simple") }
 
     // 🔹 Cores e Navegação
-    val navController = rememberNavController()
-    val currentRoute = Screen.Campaign.route
     val darkBackground = Color(0xFF121417)
     val buttonColor = Color(0xFF1E88E5)
 
@@ -54,10 +55,10 @@ fun CampaignScreen() {
         bottomBar = {
             // 🔸 Barra inferior
             BottomNavigationBar(
-                onMessagesClick = { navController.navigate(Screen.Messages.route) },
-                onCampaignClick = { navController.navigate(Screen.Campaign.route) },
-                onClientClick = { navController.navigate(Screen.Client.route) },
-                onProfileClick = { navController.navigate(Screen.Profile.route) }
+                onMessagesClick = onMessagesClick,
+                onCampaignClick = onCampaignClick,
+                onClientClick = onClientClick,
+                onProfileClick = onProfileClick
             )
         }
     ) { paddingValues ->
@@ -130,7 +131,10 @@ fun CampaignScreen() {
 fun CampaignScreenPreview() {
     WTCChallengeTheme {
         Surface(color = Color(0xFF0D0D0D)) {
-            CampaignScreen()
+            CampaignScreen(onMessagesClick = {},
+                onClientClick = {},
+                onCampaignClick = {},
+                onProfileClick = {})
         }
     }
 }
