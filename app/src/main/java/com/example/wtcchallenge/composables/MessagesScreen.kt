@@ -27,7 +27,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 
 @Composable
-fun MessagesScreen(navController: NavController) {
+fun MessagesScreen(
+    onMessagesClick: () -> Unit,
+    onCampaignClick: () -> Unit,
+    onClientClick: () -> Unit,
+    onProfileClick: () -> Unit
+) {
     var selectedFilter by remember { mutableStateOf("Todos") }
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
 
@@ -43,10 +48,10 @@ fun MessagesScreen(navController: NavController) {
         containerColor = Color(0xFF121417),
         bottomBar = {
             BottomNavigationBar(
-                onMessagesClick = { navController.navigate(Screen.Messages.route) },
-                onCampaignClick = { navController.navigate(Screen.Campaign.route) },
-                onClientClick = { navController.navigate(Screen.Client.route) },
-                onProfileClick = { navController.navigate(Screen.Profile.route) }
+                onMessagesClick = onMessagesClick,
+                onCampaignClick = onCampaignClick,
+                onClientClick = onClientClick,
+                onProfileClick = onProfileClick
             )
         }
     ) { innerPadding ->
@@ -114,7 +119,9 @@ fun MessagesScreen(navController: NavController) {
 @Composable
 fun MessagesScreenPreview() {
     WTCChallengeTheme {
-        val navController = rememberNavController()
-        MessagesScreen(navController = navController)
+        MessagesScreen(onMessagesClick = {},
+            onClientClick = {},
+            onCampaignClick = {},
+            onProfileClick = {})
     }
 }
