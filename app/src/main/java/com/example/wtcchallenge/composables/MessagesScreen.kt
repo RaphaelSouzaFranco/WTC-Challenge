@@ -43,8 +43,10 @@ fun MessagesScreen(navController: NavController) {
         containerColor = Color(0xFF121417),
         bottomBar = {
             BottomNavigationBar(
-                navController = navController,
-                currentRoute = Screen.Messages.route
+                onMessagesClick = { navController.navigate(Screen.Messages.route) },
+                onCampaignClick = { navController.navigate(Screen.Campaign.route) },
+                onClientClick = { navController.navigate(Screen.Client.route) },
+                onProfileClick = { navController.navigate(Screen.Profile.route) }
             )
         }
     ) { innerPadding ->

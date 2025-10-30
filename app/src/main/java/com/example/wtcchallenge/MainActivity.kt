@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.wtcchallenge.composables.ClientListScreen
 import com.example.wtcchallenge.composables.LoginScreen
 import com.example.wtcchallenge.composables.MessagesScreen
 import com.example.wtcchallenge.composables.Screen
@@ -48,6 +49,10 @@ fun WTCApp(modifier: Modifier = Modifier) {
         }
         composable(Screen.Messages.route){
             MessagesScreen(navController = nav)
+        }
+
+        composable(Screen.Client.route){
+            ClientListScreen()
         }
     }
 
