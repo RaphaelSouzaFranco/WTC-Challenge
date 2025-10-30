@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
 
-    // IMPORTANTE: Substitua pela sua URL do MockAPI
+    //MockAPI
     private const val BASE_URL = "https://6903bb80d0f10a340b257b61.mockapi.io/"
 
     // Cliente HTTP com logging (para debug)
