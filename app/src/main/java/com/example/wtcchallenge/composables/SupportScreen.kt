@@ -11,9 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 
 data class ChatMessage(
     val text: String,
@@ -73,8 +76,10 @@ fun SupportScreen(navController: NavController) {
         },
         bottomBar = {
             BottomNavigationBar(
-                navController = navController,
-                currentRoute = Screen.Chat.route
+                onMessagesClick = { navController.navigate(Screen.Messages.route) },
+                onCampaignClick = { navController.navigate(Screen.Campaign.route) },
+                onClientClick = { navController.navigate(Screen.Client.route) },
+                onProfileClick = { navController.navigate(Screen.Profile.route) }
             )
         }
     )
@@ -110,6 +115,16 @@ fun SupportScreen(navController: NavController) {
                     }
                 }
             )
+        }
+    }
+}
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun SupportScreenPreview() {
+    WTCChallengeTheme {
+        val navController = rememberNavController()
+        Surface(color = Color(0xFF0D0D0D)) {
+            SupportScreen(navController = navController)
         }
     }
 }

@@ -53,7 +53,12 @@ fun CampaignScreen() {
         },
         bottomBar = {
             // 🔸 Barra inferior
-            BottomNavigationBar(navController = navController, currentRoute = currentRoute)
+            BottomNavigationBar(
+                onMessagesClick = { navController.navigate(Screen.Messages.route) },
+                onCampaignClick = { navController.navigate(Screen.Campaign.route) },
+                onClientClick = { navController.navigate(Screen.Client.route) },
+                onProfileClick = { navController.navigate(Screen.Profile.route) }
+            )
         }
     ) { paddingValues ->
         // =========================================================
