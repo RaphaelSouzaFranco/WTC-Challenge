@@ -53,8 +53,17 @@ fun ClientRow(cliente: Client) {
             }
 
             Box(
-                modifier = Modifier.size(8.dp).background(Color(0xFF2E7D32), shape = CircleShape)
+                modifier = Modifier
+                    .size(8.dp)
+                    .background(
+                        color = if (cliente.status.equals("Ativo", ignoreCase = true))
+                            Color(0xFF2E7D32) // Verde
+                        else
+                            Color(0xFFD32F2F), // Vermelho
+                        shape = CircleShape
+                    )
             )
+
         }
     }
 }
