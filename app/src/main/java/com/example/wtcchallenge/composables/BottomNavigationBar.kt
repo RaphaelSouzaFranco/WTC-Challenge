@@ -30,7 +30,7 @@ fun BottomNavigationBar(
                 Icon(
                     imageVector = Icons.Default.Email,
                     contentDescription = "Conversas",
-                    tint = Color.White
+                    tint = Color.White,
                 )
             },
             label = { Text("Conversas", color = Color.White) }
