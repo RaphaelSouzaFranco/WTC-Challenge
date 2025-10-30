@@ -174,7 +174,7 @@ fun ClientRow(cliente: Cliente) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { isExpanded = !isExpanded } // Torna a linha clicável
+            .clickable { isExpanded = !isExpanded }
             .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -209,7 +209,7 @@ fun ClientRow(cliente: Cliente) {
             }
         }
 
-        // LADO DIREITO: Número (Se Expandido) + Status
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (isExpanded) {
                 Text(
@@ -221,14 +221,14 @@ fun ClientRow(cliente: Cliente) {
                 Spacer(modifier = Modifier.width(8.dp))
             }
 
-            // Ícone de Status (Bolha Verde)
+
             Box(
                 modifier = Modifier
                     .size(8.dp)
                     .background(
                         Color(0xFF2E7D32),
                         shape = CircleShape
-                    ) // Usamos CircleShape aqui também
+                    )
             )
         }
     }
