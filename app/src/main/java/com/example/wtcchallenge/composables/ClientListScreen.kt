@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
+import com.example.wtcchallenge.composables.AddClientScreen
 
 
 
@@ -73,7 +74,11 @@ fun ClientListScreen(onMessagesClick: () -> Unit,
                     titleContentColor = Color.White
                 ),
                 actions = {
-                    IconButton(onClick = {}) {
+                    // 1. IconButton: Abre e fecha as chaves APÓS o parâmetro onClick
+                    IconButton(onClick = {
+                        navController.navigate(Screen.AddClientScreen.route)
+                    }) {
+                        // 2. O Icon é o conteúdo do botão
                         Icon(
                             Icons.Default.Add,
                             contentDescription = "Adicionar Cliente",
