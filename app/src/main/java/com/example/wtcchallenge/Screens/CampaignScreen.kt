@@ -45,7 +45,7 @@ fun CampaignScreen(onMessagesClick: () -> Unit,
                     titleContentColor = Color.White
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { /* Ação de Voltar */ }) {
+                    IconButton(onClick = {onMessagesClick()}) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Color.White)
                     }
                 }

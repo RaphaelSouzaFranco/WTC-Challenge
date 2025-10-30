@@ -15,28 +15,52 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.wtcchallenge.composables.BottomNavigationBar
+import com.example.wtcchallenge.composables.Client
 import com.example.wtcchallenge.composables.ConversationItem
 import com.example.wtcchallenge.composables.SelectableButton
-import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
+import com.example.wtcchallenge.network.RetrofitInstance
+import kotlinx.coroutines.launch
 
 @Composable
 fun MessagesScreen(
     onMessagesClick: () -> Unit,
     onCampaignClick: () -> Unit,
     onClientClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onChatClick: () -> Unit  // ADICIONADO: callback para navegar ao chat
 ) {
     var selectedFilter by remember { mutableStateOf("Todos") }
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
 
-    val clientes = listOf(
-        "Cliente 1", "Cliente 2", "Cliente 3", "Cliente 4", "Cliente 5", "Cliente 6"
-    )
+    // MUDOU: Estados para API
+    var clientes by remember { mutableStateOf<List<Client>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    val scope = rememberCoroutineScope()
+
+    // ADICIONADO: Carregar clientes da API
+    LaunchedEffect(Unit) {
+        scope.launch {
+            try {
+                isLoading = true
+                errorMessage = null
+                val lista = RetrofitInstance.api.getClients()
+                clientes = lista
+            } catch (e: Exception) {
+                errorMessage = "Erro ao carregar conversas: ${e.message}"
+                e.printStackTrace()
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    // MUDOU: Filtrar por nome e ramo
     val filteredList = clientes.filter {
-        it.contains(searchQuery.text, ignoreCase = true)
+        it.nome.contains(searchQuery.text, ignoreCase = true) ||
+                it.ramo.contains(searchQuery.text, ignoreCase = true)
     }
 
     Scaffold(
@@ -92,31 +116,60 @@ fun MessagesScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(filteredList) { nome ->
-                    ConversationItem(nome)
+            // MUDOU: Adiciona estados de Loading e Error
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Color.White)
+                    }
+                }
+                errorMessage != null -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = errorMessage ?: "Erro desconhecido",
+                                color = Color.Red
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(onClick = {
+                                scope.launch {
+                                    try {
+                                        isLoading = true
+                                        errorMessage = null
+                                        val lista = RetrofitInstance.api.getClients()
+                                        clientes = lista
+                                    } catch (e: Exception) {
+                                        errorMessage = "Erro: ${e.message}"
+                                    } finally {
+                                        isLoading = false
+                                    }
+                                }
+                            }) {
+                                Text("Tentar Novamente")
+                            }
+                        }
+                    }
+                }
+                else -> {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(filteredList) { cliente ->  // MUDOU: agora itera sobre Client
+                            ConversationItem(
+                                cliente = cliente,
+                                onClick = onChatClick  // ADICIONADO: navega ao clicar
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
-
-
-
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun MessagesScreenPreview() {
-    WTCChallengeTheme {
-        MessagesScreen(onMessagesClick = {},
-            onClientClick = {},
-            onCampaignClick = {},
-            onProfileClick = {})
     }
 }

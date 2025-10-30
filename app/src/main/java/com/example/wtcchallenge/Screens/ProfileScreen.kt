@@ -26,7 +26,7 @@ fun ProfileScreen(onMessagesClick: () -> Unit,
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Perfil do Cliente", color = textColor) },
+                title = { Text("Perfil do Operador", color = textColor) },
                 navigationIcon = {
                     IconButton(onClick = {onClientClick()}) {
                         Icon(

@@ -71,37 +71,24 @@ fun ProfileContent(
 
         Spacer(modifier = Modifier.height(8.dp))
         Text("Isabella Rossi", color = textColor, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-        Text("Score: 850", color = textColor.copy(alpha = 0.8f))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Status: Active", color = textColor.copy(alpha = 0.8f))
-            Box(
-                modifier = Modifier
-                    .padding(start = 6.dp)
-                    .size(10.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF00FF4C))
-            )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
         // Tags
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TagItem("VIP", secondaryColor, textColor)
-            TagItem("Marketing", secondaryColor, textColor)
-            TagItem("Engaged", secondaryColor, textColor)
-        }
+
 
         Spacer(modifier = Modifier.height(20.dp))
-        Text("Message History", color = textColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text("Histórico de Mensagens", color = textColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
 
         Spacer(modifier = Modifier.height(8.dp))
-        MessageItem("Sent message: Summer promotion", "July 20th, 2:30 PM", textColor)
-        MessageItem("Received message: Product inquiry", "July 15th, 10:00 AM", textColor)
-        MessageItem("Sent message: Welcome", "July 10th, 4:45 PM", textColor)
+        MessageItem("Mensagem enviada: Promoção de verão", "20 de Julho, 2:30 PM", textColor)
+        MessageItem("Mensagem recebida: Dúvidas sobre o produto", "15 de Julho, 10:00 AM", textColor)
+        MessageItem("Mensagem enviada: Bem-vindos!", "10 de Julho, 4:45 PM", textColor)
 
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Quick Notes", color = textColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text("Notas", color = textColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
 
         Spacer(modifier = Modifier.height(8.dp))
         Box(
@@ -127,7 +114,7 @@ fun ProfileContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Dark Mode", color = textColor)
+            Text("Modo Escuro", color = textColor)
             Switch(
                 checked = darkMode,
                 onCheckedChange = { onToggleDarkMode() },

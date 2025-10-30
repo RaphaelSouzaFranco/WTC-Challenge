@@ -1,5 +1,10 @@
 package com.example.wtcchallenge.Screens
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.wtcchallenge.composables.BottomNavigationBar
+import com.example.wtcchallenge.composables.SupportMessage
+import com.example.wtcchallenge.composables.TrackOrderButton
+import com.example.wtcchallenge.composables.UserMessage
 import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 
 data class ChatMessage(
@@ -79,7 +88,7 @@ fun SupportScreen(onMessagesClick: () -> Unit,
             )
         },
         bottomBar = {
-            _root_ide_package_.com.example.wtcchallenge.composables.BottomNavigationBar(
+            BottomNavigationBar(
                 onMessagesClick = onMessagesClick,
                 onCampaignClick = onCampaignClick,
                 onClientClick = onClientClick,
@@ -102,11 +111,11 @@ fun SupportScreen(onMessagesClick: () -> Unit,
             ) {
                 items(messages) { message ->
                     when {
-                        message.isButton -> _root_ide_package_.com.example.wtcchallenge.composables.TrackOrderButton()
-                        message.isFromUser -> _root_ide_package_.com.example.wtcchallenge.composables.UserMessage(
+                        message.isButton -> TrackOrderButton()
+                        message.isFromUser -> UserMessage(
                             message.text
                         )
-                        else -> _root_ide_package_.com.example.wtcchallenge.composables.SupportMessage(
+                        else -> SupportMessage(
                             message.text
                         )
                     }
