@@ -43,6 +43,19 @@ fun BottomNavigationBar(navController: NavController, currentRoute: String) {
 
         NavigationBarItem(
             selected = currentRoute == Screen.Profile.route,
+            onClick = { navController.navigate(Screen.Client.route) },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Clientes",
+                    tint = Color.White
+                )
+            },
+            label = { Text("Clientes", color = Color.White) }
+        )
+
+        NavigationBarItem(
+            selected = currentRoute == Screen.Profile.route,
             onClick = { navController.navigate(Screen.Profile.route) },
             icon = {
                 Icon(
