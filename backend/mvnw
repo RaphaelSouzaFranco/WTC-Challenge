@@ -1,0 +1,23 @@
+#!/bin/sh
+# Maven Wrapper Script
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.
+
+if [ -z "$JAVA_HOME" ] ; then
+  JAVACMD=`which java`
+else
+  JAVACMD="$JAVA_HOME/bin/java"
+fi
+
+MAVEN_WRAPPER_JAR=".mvn/wrapper/maven-wrapper.jar"
+MAVEN_WRAPPER_PROPERTIES=".mvn/wrapper/maven-wrapper.properties"
+
+# Download wrapper jar if missing
+if [ -r "$MAVEN_WRAPPER_PROPERTIES" ]; then
+  . "$MAVEN_WRAPPER_PROPERTIES"
+fi
+
+exec "$JAVACMD" \
+  $MAVEN_OPTS \
+  "-Dmaven.multiModuleProjectDirectory=$MAVEN_PROJECTBASEDIR" \
+  -jar "$MAVEN_WRAPPER_JAR" "$@"
