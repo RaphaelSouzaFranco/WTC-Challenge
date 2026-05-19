@@ -22,6 +22,7 @@ import com.example.wtcchallenge.composables.ChatBottomBar
 import com.example.wtcchallenge.composables.SupportMessage
 import com.example.wtcchallenge.composables.TrackOrderButton
 import com.example.wtcchallenge.composables.UserMessage
+import com.example.wtcchallenge.composables.simpleVerticalScrollbar
 import com.example.wtcchallenge.model.Message
 import com.example.wtcchallenge.network.RetrofitInstance
 import com.example.wtcchallenge.network.SessionManager
@@ -48,12 +49,17 @@ fun SupportScreen(
     LaunchedEffect(conversationId) {
         try {
             val page = RetrofitInstance.api.getMessages(conversationId)
-            messages = page.content
-            if (messages.isNotEmpty()) listState.scrollToItem(messages.lastIndex)
+            messages = page.content.sortedBy { it.createdAt ?: "" }
         } catch (e: Exception) {
             // mantém lista vazia
         } finally {
             isLoading = false
+        }
+    }
+
+    LaunchedEffect(isLoading, messages.size) {
+        if (!isLoading && messages.isNotEmpty()) {
+            listState.scrollToItem(messages.lastIndex)
         }
     }
 
@@ -91,7 +97,10 @@ fun SupportScreen(
                 }
                 else -> LazyColumn(
                     state = listState,
-                    modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp)
+                        .simpleVerticalScrollbar(listState),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(vertical = 16.dp)
                 ) {

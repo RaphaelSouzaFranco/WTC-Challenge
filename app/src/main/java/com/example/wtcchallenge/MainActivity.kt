@@ -71,8 +71,8 @@ fun WTCApp(modifier: Modifier = Modifier) {
                 onCampaignClick = { nav.navigate(Screen.Campaign.route) },
                 onMessagesClick = { nav.navigate(Screen.Messages.route) },
                 onClientClick = { nav.navigate(Screen.Client.route) },
-                onChatClick = { conversationId ->
-                    nav.navigate(Screen.Chat.withId(conversationId))
+                onChatClick = { clientId ->
+                    nav.navigate(Screen.Inbox.withId(clientId))
                 }
             )
         }
