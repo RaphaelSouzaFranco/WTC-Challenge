@@ -1,14 +1,19 @@
 package com.example.wtcchallenge.Screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.wtcchallenge.composables.BottomNavigationBar
 import com.example.wtcchallenge.composables.ProfileContent
 import com.example.wtcchallenge.model.Operator
@@ -23,7 +28,8 @@ fun ProfileScreen(
     onMessagesClick: () -> Unit,
     onCampaignClick: () -> Unit,
     onClientClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onLogout: () -> Unit = {}
 ) {
     var operator by remember { mutableStateOf(Operator()) }
     var darkMode by remember { mutableStateOf(true) }
@@ -95,18 +101,38 @@ fun ProfileScreen(
                 contentAlignment = Alignment.Center
             ) { CircularProgressIndicator() }
         } else {
-            ProfileContent(
-                modifier = Modifier.padding(paddingValues),
-                operator = operator,
-                darkMode = darkMode,
-                textColor = textColor,
-                secondaryColor = secondaryColor,
-                onToggleDarkMode = {
-                    darkMode = !darkMode
-                    saveProfile()
-                },
-                onNotesChange = { pendingNotes = it }
-            )
+            Column(modifier = Modifier.padding(paddingValues)) {
+                ProfileContent(
+                    operator = operator,
+                    darkMode = darkMode,
+                    textColor = textColor,
+                    secondaryColor = secondaryColor,
+                    onToggleDarkMode = {
+                        darkMode = !darkMode
+                        saveProfile()
+                    },
+                    onNotesChange = { pendingNotes = it }
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    onClick = {
+                        SessionManager.clear()
+                        onLogout()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color.White)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Sair da Conta", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                }
+            }
         }
     }
 }

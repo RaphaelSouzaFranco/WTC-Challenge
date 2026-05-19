@@ -69,26 +69,59 @@ fun SimpleTextField(
 // ==========================================================
 // Cria um box (cartão) para upload de imagem com botão e textos informativos
 @Composable
-fun ImageUploadBox() {
+fun ImageUploadBox(
+    imageUri: android.net.Uri? = null,
+    onPickImage: () -> Unit = {},
+    onRemoveImage: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()                                              // Ocupar toda a largura
-            .height(160.dp)                                              // Altura fixa
+            .heightIn(min = 160.dp)                                      // Altura mínima
             .border(2.dp, secondaryText.copy(alpha = 0.5f), RoundedCornerShape(8.dp)) // Borda suave
             .background(darkSurface, RoundedCornerShape(8.dp))           // Fundo escuro com cantos arredondados
             .padding(16.dp),                                             // Espaçamento interno
         horizontalAlignment = Alignment.CenterHorizontally,              // Centraliza horizontalmente
         verticalArrangement = Arrangement.Center                         // Centraliza verticalmente
     ) {
-        Text("Add Image", color = lightText, fontWeight = FontWeight.SemiBold) // Título
-        Text("Supported formats: JPG, PNG", color = secondaryText, fontSize = 12.sp) // Subtexto
-        Spacer(modifier = Modifier.height(12.dp))                         // Espaço entre os elementos
-        Button(
-            onClick = { /* Ação de Escolher Imagem */ },                 // Clique do botão
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF424242)), // Cor do botão
-            shape = RoundedCornerShape(8.dp)                             // Borda arredondada
-        ) {
-            Text("Choose Image", color = lightText)                      // Texto do botão
+        if (imageUri != null) {
+            // Exibe preview da imagem selecionada
+            androidx.compose.foundation.Image(
+                painter = coil.compose.rememberAsyncImagePainter(model = imageUri),
+                contentDescription = "Imagem selecionada",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = onPickImage,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF424242)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Trocar Imagem", color = lightText)
+                }
+                OutlinedButton(
+                    onClick = onRemoveImage,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Remover", color = Color(0xFFEF5350))
+                }
+            }
+        } else {
+            Text("Add Image", color = lightText, fontWeight = FontWeight.SemiBold) // Título
+            Text("Supported formats: JPG, PNG", color = secondaryText, fontSize = 12.sp) // Subtexto
+            Spacer(modifier = Modifier.height(12.dp))                         // Espaço entre os elementos
+            Button(
+                onClick = onPickImage,                                       // Clique do botão
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF424242)), // Cor do botão
+                shape = RoundedCornerShape(8.dp)                             // Borda arredondada
+            ) {
+                Text("Choose Image", color = lightText)                      // Texto do botão
+            }
         }
     }
 }
