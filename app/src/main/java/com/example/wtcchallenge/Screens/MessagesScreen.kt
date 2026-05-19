@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.wtcchallenge.composables.BottomNavigationBar
@@ -19,6 +20,7 @@ import com.example.wtcchallenge.composables.SelectableButton
 import com.example.wtcchallenge.model.Conversation
 import com.example.wtcchallenge.network.RetrofitInstance
 import com.example.wtcchallenge.network.SessionManager
+import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 import kotlinx.coroutines.launch
 
 @Composable
@@ -114,6 +116,17 @@ fun MessagesScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun MessagesScreenPreview() {
+    WTCChallengeTheme {
+        Surface(color = Color(0xFF0D0D0D)) {
+            MessagesScreen(onMessagesClick = {}, onProfileClick = {}, onClientClick = {}, onCampaignClick = {}, onChatClick = {} )
         }
     }
 }
