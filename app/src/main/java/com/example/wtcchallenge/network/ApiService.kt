@@ -41,6 +41,9 @@ interface ApiService {
         @Query("filter") filter: String = "Todos"
     ): List<Conversation>
 
+    @POST("api/conversations")
+    suspend fun getOrCreateConversation(@Body body: Map<String, String>): Conversation
+
     // ── MESSAGES ──────────────────────────────────────────────────────────────
 
     @GET("api/messages/{conversationId}")
