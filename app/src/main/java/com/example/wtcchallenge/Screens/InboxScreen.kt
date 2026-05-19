@@ -3,6 +3,7 @@ package com.example.wtcchallenge.Screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -11,13 +12,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.wtcchallenge.composables.ConversationItem
+import com.example.wtcchallenge.composables.ChatBottomBar
+import com.example.wtcchallenge.composables.SupportMessage
+import com.example.wtcchallenge.composables.UserMessage
 import com.example.wtcchallenge.model.Client
-import com.example.wtcchallenge.model.Conversation
+import com.example.wtcchallenge.model.Message
 import com.example.wtcchallenge.network.RetrofitInstance
+import com.example.wtcchallenge.network.SessionManager
+import com.example.wtcchallenge.network.dto.MessageRequestDto
 import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 import kotlinx.coroutines.launch
 
@@ -29,43 +35,94 @@ fun InboxScreen(
     onChatClick: (String) -> Unit
 ) {
     var client by remember { mutableStateOf<Client?>(null) }
-    var conversations by remember { mutableStateOf<List<Conversation>>(emptyList()) }
+    var messages by remember { mutableStateOf<List<Message>>(emptyList()) }
+    var conversationId by remember { mutableStateOf<String?>(null) }
+    var messageText by remember { mutableStateOf(TextFieldValue("")) }
     var isLoading by remember { mutableStateOf(true) }
+    var isSending by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
     val darkBackground = Color(0xFF121417)
 
-    fun loadData() {
-        scope.launch {
-            isLoading = true
-            errorMessage = null
-            try {
-                client = RetrofitInstance.api.getClientById(customerId)
-                conversations = RetrofitInstance.api.getInboxConversations(customerId)
-            } catch (e: Exception) {
-                errorMessage = "Erro ao carregar inbox: ${e.message}"
-            } finally {
-                isLoading = false
-            }
+    LaunchedEffect(customerId) {
+        isLoading = true
+        errorMessage = null
+        try {
+            client = RetrofitInstance.api.getClientById(customerId)
+            messages = RetrofitInstance.api.getInboxMessages(customerId)
+            conversationId = RetrofitInstance.api.getInboxConversations(customerId)
+                .firstOrNull()?.id
+            if (messages.isNotEmpty()) listState.scrollToItem(messages.lastIndex)
+        } catch (e: Exception) {
+            errorMessage = "Erro ao carregar inbox: ${e.message}"
+        } finally {
+            isLoading = false
         }
     }
 
-    LaunchedEffect(customerId) { loadData() }
+    fun enviarMensagem() {
+        val text = messageText.text.trim()
+        if (text.isBlank() || isSending) return
+        val operatorId = SessionManager.operatorId ?: run {
+            errorMessage = "Sessão expirada."
+            return
+        }
+        scope.launch {
+            isSending = true
+            try {
+                val convId = conversationId ?: run {
+                    val novaConversa = RetrofitInstance.api.getOrCreateConversation(
+                        mapOf("clientId" to customerId, "operatorId" to operatorId)
+                    )
+                    conversationId = novaConversa.id
+                    novaConversa.id
+                }
+
+                val sent = RetrofitInstance.api.sendMessage(
+                    convId,
+                    MessageRequestDto(
+                        senderId = operatorId,
+                        senderType = "OPERATOR",
+                        content = text
+                    )
+                )
+                messages = messages + sent
+                messageText = TextFieldValue("")
+                listState.scrollToItem(messages.lastIndex)
+            } catch (e: Exception) {
+                errorMessage = "Erro ao enviar: ${e.message}"
+            } finally {
+                isSending = false
+            }
+        }
+    }
 
     Scaffold(
         containerColor = darkBackground,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        "Inbox - ${client?.nome ?: "Cliente"}",
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1
-                    )
+                    Column {
+                        Text(
+                            text = client?.nome ?: "Cliente",
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            color = Color.White,
+                            fontSize = 16.sp
+                        )
+                        if (!client?.ramo.isNullOrBlank()) {
+                            Text(
+                                text = client!!.ramo,
+                                color = Color(0xFF9EABBA),
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = darkBackground,
+                    containerColor = Color(0xFF1C1F24),
                     titleContentColor = Color.White
                 ),
                 navigationIcon = {
@@ -80,50 +137,60 @@ fun InboxScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
         ) {
             when {
-                isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                isLoading -> Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = Color.White)
                 }
-                errorMessage != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(errorMessage!!, color = Color.Red)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { loadData() }) { Text("Tentar Novamente") }
-                    }
-                }
-                conversations.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                messages.isEmpty() -> Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text(
-                        "Nenhuma conversa encontrada para este cliente",
+                        text = "Nenhuma mensagem ainda. Envie a primeira!",
                         color = Color(0xFF9EABBA),
-                        fontSize = 16.sp
+                        fontSize = 14.sp
                     )
                 }
-                else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(conversations) { conversation ->
-                        ConversationItem(
-                            conversation = conversation,
-                            onClick = { onChatClick(conversation.id) }
-                        )
-                        HorizontalDivider(
-                            color = Color(0xFF293038),
-                            thickness = 1.dp,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
+                else -> LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp)
+                ) {
+                    items(messages) { msg ->
+                        if (msg.senderType == "OPERATOR") {
+                            UserMessage(msg.content ?: "")
+                        } else {
+                            SupportMessage(msg.content ?: "")
+                        }
                     }
                 }
             }
-        }
-    }
-}
-@Preview(showBackground = true)
-@Composable
-fun InboxScreenPreview() {
-    WTCChallengeTheme {
-        Surface(color = Color(0xFF0D0D0D)) {
-            InboxScreen(customerId= String(), onBack={}, onChatClick = {})
+
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage!!,
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                )
+            }
+
+            ChatBottomBar(
+                messageText = messageText,
+                onMessageChange = { messageText = it },
+                onSendClick = { enviarMensagem() }
+            )
         }
     }
 }
 
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun InboxScreenPreview() {
+    WTCChallengeTheme {
+        InboxScreen(customerId = "preview-id", onBack = {}, onChatClick = {})
+    }
+}
