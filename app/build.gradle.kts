@@ -57,6 +57,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("io.coil-kt:coil-compose:2.6.0")
     implementation(libs.androidx.foundation)
     implementation(libs.material3)
     implementation(libs.ui)

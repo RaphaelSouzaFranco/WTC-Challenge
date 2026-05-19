@@ -35,7 +35,8 @@ fun ClientListScreen(
     onClientClick: () -> Unit,
     onProfileClick: () -> Unit,
     onTimelineClick: ((String) -> Unit)? = null,
-    onInboxClick: ((String) -> Unit)? = null
+    onInboxClick: ((String) -> Unit)? = null,
+    onClientProfileClick: ((String) -> Unit)? = null
 ) {
     var textoBusca by remember { mutableStateOf(TextFieldValue("")) }
     var clientes by remember { mutableStateOf<List<Client>>(emptyList()) }
@@ -169,7 +170,8 @@ fun ClientListScreen(
                         ClientRow(
                             cliente = cliente,
                             onTimelineClick = onTimelineClick,
-                            onInboxClick = onInboxClick
+                            onInboxClick = onInboxClick,
+                            onProfileClick = onClientProfileClick
                         )
                         HorizontalDivider(color = Color(0xFF293038), thickness = 1.dp)
                     }

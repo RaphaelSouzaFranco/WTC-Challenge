@@ -18,6 +18,7 @@ import com.example.wtcchallenge.network.dto.RefreshRequestDto
 import com.example.wtcchallenge.network.dto.RegisterRequestDto
 import com.example.wtcchallenge.network.dto.ScheduleRequestDto
 import com.example.wtcchallenge.network.dto.SegmentRequestDto
+import okhttp3.MultipartBody
 import retrofit2.http.*
 
 interface ApiService {
@@ -116,6 +117,13 @@ interface ApiService {
 
     @POST("api/campaigns")
     suspend fun createCampaign(@Body request: CampaignRequestDto): Campaign
+
+    @Multipart
+    @POST("api/campaigns/{id}/media")
+    suspend fun uploadCampaignMedia(
+        @Path("id") id: String,
+        @Part file: MultipartBody.Part
+    ): Map<String, String>
 
     @POST("api/campaigns/{id}/send")
     suspend fun sendCampaign(@Path("id") id: String): Campaign

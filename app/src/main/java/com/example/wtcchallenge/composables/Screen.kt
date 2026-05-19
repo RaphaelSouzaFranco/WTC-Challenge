@@ -17,4 +17,7 @@ sealed class Screen(val route: String) {
     }
     data object Segments : Screen("segments")
     data object Profile : Screen("profile")
+    data object ClientProfile : Screen("client/{clientId}/profile") {
+        fun withId(id: String) = "client/$id/profile"
+    }
 }

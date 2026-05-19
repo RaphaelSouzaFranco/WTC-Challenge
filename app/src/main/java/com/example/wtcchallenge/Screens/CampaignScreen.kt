@@ -1,5 +1,8 @@
 package com.example.wtcchallenge.composables.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,7 +27,12 @@ import com.example.wtcchallenge.network.SessionManager
 import com.example.wtcchallenge.network.dto.ABTestRequestDto
 import com.example.wtcchallenge.network.dto.CampaignRequestDto
 import com.example.wtcchallenge.network.dto.ScheduleRequestDto
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -47,6 +56,15 @@ fun CampaignScreen(
 
     var scheduleHours by remember { mutableStateOf(TextFieldValue("")) }
     var showABTestDialog by remember { mutableStateOf(false) }
+
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imageUri = uri
+    }
 
     val scope = rememberCoroutineScope()
     val darkBackground = Color(0xFF121417)
@@ -144,7 +162,11 @@ fun CampaignScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            ImageUploadBox()
+            ImageUploadBox(
+                imageUri = imageUri,
+                onPickImage = { imagePickerLauncher.launch("image/*") },
+                onRemoveImage = { imageUri = null }
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Target Audience", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
@@ -220,6 +242,22 @@ fun CampaignScreen(
                                     operatorId = operatorId
                                 )
                             )
+
+                            // Upload da imagem se selecionada
+                            imageUri?.let { uri ->
+                                withContext(Dispatchers.IO) {
+                                    val inputStream = context.contentResolver.openInputStream(uri)
+                                    val bytes = inputStream?.readBytes() ?: byteArrayOf()
+                                    inputStream?.close()
+                                    val contentType = context.contentResolver.getType(uri) ?: "image/jpeg"
+                                    val requestBody = bytes.toRequestBody(contentType.toMediaTypeOrNull())
+                                    val part = MultipartBody.Part.createFormData(
+                                        "file", "campaign_image.jpg", requestBody
+                                    )
+                                    RetrofitInstance.api.uploadCampaignMedia(campaign.id, part)
+                                }
+                            }
+
                             val hours = scheduleHours.text.trim().toLongOrNull()
                             if (hours != null && hours > 0) {
                                 val scheduledAt = Instant.now().plus(hours, ChronoUnit.HOURS).toString()
@@ -235,6 +273,7 @@ fun CampaignScreen(
                             titulo = TextFieldValue("")
                             mensagem = TextFieldValue("")
                             scheduleHours = TextFieldValue("")
+                            imageUri = null
                         } catch (e: Exception) {
                             feedbackMsg = "Erro ao enviar campanha: ${e.message}"
                         } finally {

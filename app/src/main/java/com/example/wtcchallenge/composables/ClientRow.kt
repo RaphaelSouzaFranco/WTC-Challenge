@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
@@ -24,7 +25,8 @@ import com.example.wtcchallenge.model.Client
 fun ClientRow(
     cliente: Client,
     onTimelineClick: ((String) -> Unit)? = null,
-    onInboxClick: ((String) -> Unit)? = null
+    onInboxClick: ((String) -> Unit)? = null,
+    onProfileClick: ((String) -> Unit)? = null
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -102,6 +104,18 @@ fun ClientRow(
                         Icon(Icons.Default.Email, null, modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Inbox", fontSize = 12.sp)
+                    }
+                }
+                if (onProfileClick != null) {
+                    OutlinedButton(
+                        onClick = { onProfileClick(cliente.id) },
+                        shape = RoundedCornerShape(6.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF9C27B0)),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        Icon(Icons.Default.Person, null, modifier = Modifier.size(14.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Perfil", fontSize = 12.sp)
                     }
                 }
             }

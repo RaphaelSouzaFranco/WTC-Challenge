@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.wtcchallenge.Screens.ClientListScreen
+import com.example.wtcchallenge.Screens.ClientProfileScreen
 import com.example.wtcchallenge.Screens.ClientTimelineScreen
 import com.example.wtcchallenge.Screens.InboxScreen
 import com.example.wtcchallenge.Screens.LoginScreen
@@ -102,6 +103,9 @@ fun WTCApp(modifier: Modifier = Modifier) {
                 },
                 onInboxClick = { clientId ->
                     nav.navigate(Screen.Inbox.withId(clientId))
+                },
+                onClientProfileClick = { clientId ->
+                    nav.navigate(Screen.ClientProfile.withId(clientId))
                 }
             )
         }
@@ -150,7 +154,23 @@ fun WTCApp(modifier: Modifier = Modifier) {
                 onProfileClick = { nav.navigate(Screen.Profile.route) },
                 onCampaignClick = { nav.navigate(Screen.Campaign.route) },
                 onMessagesClick = { nav.navigate(Screen.Messages.route) },
-                onClientClick = { nav.navigate(Screen.Client.route) }
+                onClientClick = { nav.navigate(Screen.Client.route) },
+                onLogout = {
+                    nav.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Screen.ClientProfile.route,
+            arguments = listOf(navArgument("clientId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val clientId = backStackEntry.arguments?.getString("clientId") ?: ""
+            ClientProfileScreen(
+                clientId = clientId,
+                onBack = { nav.popBackStack() }
             )
         }
     }
