@@ -23,16 +23,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
     private final OperatorRepository operatorRepository;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, OperatorRepository operatorRepository) {
-        this.jwtAuthFilter = jwtAuthFilter;
+    public SecurityConfig(OperatorRepository operatorRepository) {
         this.operatorRepository = operatorRepository;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configure(http))

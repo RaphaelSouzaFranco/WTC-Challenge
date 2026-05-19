@@ -9,6 +9,7 @@ import com.example.wtcchallenge.model.Segment
 import com.example.wtcchallenge.model.TimelineEvent
 import com.example.wtcchallenge.network.dto.ABTestRequestDto
 import com.example.wtcchallenge.network.dto.CampaignRequestDto
+import com.example.wtcchallenge.network.dto.ClientRequestDto
 import com.example.wtcchallenge.network.dto.LoginRequestDto
 import com.example.wtcchallenge.network.dto.LoginResponseDto
 import com.example.wtcchallenge.network.dto.MessageRequestDto
@@ -81,6 +82,9 @@ interface ApiService {
 
     @GET("api/clients/{id}")
     suspend fun getClientById(@Path("id") id: String): Client
+
+    @POST("api/clients")
+    suspend fun createClient(@Body request: ClientRequestDto): Client
 
     @GET("api/clients/{id}/timeline")
     suspend fun getClientTimeline(@Path("id") id: String): List<TimelineEvent>

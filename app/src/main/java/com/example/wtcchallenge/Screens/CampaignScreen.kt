@@ -12,8 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 import com.example.wtcchallenge.composables.*
 import com.example.wtcchallenge.model.Segment
 import com.example.wtcchallenge.network.RetrofitInstance
@@ -344,4 +346,18 @@ fun ABTestDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
             TextButton(onClick = onDismiss) { Text("Cancelar", color = Color(0xFF9EABBA)) }
         }
     )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun CampaignScreenPreview() {
+    WTCChallengeTheme {
+        CampaignScreen(
+            onMessagesClick = {},
+            onCampaignClick = {},
+            onClientClick = {},
+            onProfileClick = {},
+            onSegmentsClick = {}
+        )
+    }
 }
