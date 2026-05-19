@@ -3,13 +3,7 @@ package com.example.wtcchallenge.composables
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
@@ -23,20 +17,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.wtcchallenge.composables.Client
+import com.example.wtcchallenge.model.Conversation
 
 @Composable
 fun ConversationItem(
-    cliente: Client,  // MUDOU: agora recebe Client ao invés de String
-    onClick: () -> Unit  // ADICIONADO: callback para clique
+    conversation: Conversation,
+    onClick: () -> Unit
 ) {
+    val nomeExibido = conversation.client?.nome ?: "Conversa"
+    val subtitulo = conversation.lastMessage ?: conversation.client?.ramo ?: ""
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },  // MUDOU: chama o callback
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Placeholder circular para imagem do cliente
         Box(
             modifier = Modifier
                 .size(48.dp)
@@ -55,18 +51,35 @@ fun ConversationItem(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = cliente.nome,  // MUDOU: usa cliente.nome
+                text = nomeExibido,
                 color = Color.White,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp
             )
             Text(
-                text = "${cliente.ramo} • Score: ${cliente.score}",  // MUDOU: mostra info do cliente
+                text = subtitulo,
                 color = Color(0xFF9EABBA),
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                maxLines = 1
             )
+        }
+
+        if (conversation.unreadCount > 0) {
+            Box(
+                modifier = Modifier
+                    .size(20.dp)
+                    .background(Color(0xFF007BFF), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = conversation.unreadCount.toString(),
+                    color = Color.White,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }

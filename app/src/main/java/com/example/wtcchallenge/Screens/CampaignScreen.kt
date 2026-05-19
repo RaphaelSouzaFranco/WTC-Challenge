@@ -13,31 +13,34 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.wtcchallenge.composables.* // Importa os novos componentes!
+import com.example.wtcchallenge.composables.*
+import com.example.wtcchallenge.network.RetrofitInstance
+import com.example.wtcchallenge.network.SessionManager
+import com.example.wtcchallenge.network.dto.CampaignRequestDto
 import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
+import kotlinx.coroutines.launch
 
-// =========================================================
-// 3️⃣ TELA CAMPANHAS EXPRESSAS - LIMPA
-// =========================================================
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CampaignScreen(onMessagesClick: () -> Unit,
-                   onCampaignClick: () -> Unit,
-                   onClientClick: () -> Unit,
-                   onProfileClick: () -> Unit) {
-    // 🔹 Estados
+fun CampaignScreen(
+    onMessagesClick: () -> Unit,
+    onCampaignClick: () -> Unit,
+    onClientClick: () -> Unit,
+    onProfileClick: () -> Unit
+) {
     var titulo by remember { mutableStateOf(TextFieldValue("")) }
     var mensagem by remember { mutableStateOf(TextFieldValue("")) }
     var targetAudience by remember { mutableStateOf("Simple") }
+    var isSending by remember { mutableStateOf(false) }
+    var feedbackMsg by remember { mutableStateOf<String?>(null) }
 
-    // 🔹 Cores e Navegação
+    val scope = rememberCoroutineScope()
     val darkBackground = Color(0xFF121417)
     val buttonColor = Color(0xFF1E88E5)
 
     Scaffold(
         containerColor = darkBackground,
         topBar = {
-            // 🔸 Barra superior
             CenterAlignedTopAppBar(
                 title = { Text("Campanhas Expressas", fontWeight = FontWeight.SemiBold) },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -45,14 +48,13 @@ fun CampaignScreen(onMessagesClick: () -> Unit,
                     titleContentColor = Color.White
                 ),
                 navigationIcon = {
-                    IconButton(onClick = {onMessagesClick()}) {
+                    IconButton(onClick = { onMessagesClick() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Color.White)
                     }
                 }
             )
         },
         bottomBar = {
-            // 🔸 Barra inferior
             BottomNavigationBar(
                 onMessagesClick = onMessagesClick,
                 onCampaignClick = onCampaignClick,
@@ -61,16 +63,12 @@ fun CampaignScreen(onMessagesClick: () -> Unit,
             )
         }
     ) { paddingValues ->
-        // =========================================================
-        //  CONTEÚDO PRINCIPAL (Chamada aos Componentes)
-        // =========================================================
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
-            // 1. Título
             SimpleTextField(
                 value = titulo,
                 onValueChange = { titulo = it },
@@ -79,7 +77,6 @@ fun CampaignScreen(onMessagesClick: () -> Unit,
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 2. Mensagem
             SimpleTextField(
                 value = mensagem,
                 onValueChange = { mensagem = it },
@@ -89,11 +86,9 @@ fun CampaignScreen(onMessagesClick: () -> Unit,
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 3. Upload de Imagem
             ImageUploadBox()
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 4. Público-Alvo (Target Audience)
             Text("Target Audience", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(8.dp))
             TargetAudienceDropdown(
@@ -102,38 +97,81 @@ fun CampaignScreen(onMessagesClick: () -> Unit,
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 5. Preview da Campanha
             Text("Preview", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(8.dp))
             CampaignPreviewCard()
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // 6. Botão Enviar
+            if (feedbackMsg != null) {
+                Text(
+                    text = feedbackMsg!!,
+                    color = if (feedbackMsg!!.startsWith("Erro")) Color.Red else Color(0xFF4CAF50),
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
             Button(
-                onClick = { /* Ação de Enviar */ },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
+                onClick = {
+                    if (titulo.text.isBlank() || mensagem.text.isBlank()) {
+                        feedbackMsg = "Preencha título e mensagem."
+                        return@Button
+                    }
+                    scope.launch {
+                        isSending = true
+                        feedbackMsg = null
+                        try {
+                            val operatorId = SessionManager.operatorId ?: run {
+                                feedbackMsg = "Erro: sessão expirada."
+                                return@launch
+                            }
+                            val campaign = RetrofitInstance.api.createCampaign(
+                                CampaignRequestDto(
+                                    titulo = titulo.text.trim(),
+                                    mensagem = mensagem.text.trim(),
+                                    targetAudience = targetAudience,
+                                    operatorId = operatorId
+                                )
+                            )
+                            RetrofitInstance.api.sendCampaign(campaign.id)
+                            feedbackMsg = "Campanha enviada com sucesso!"
+                            titulo = TextFieldValue("")
+                            mensagem = TextFieldValue("")
+                        } catch (e: Exception) {
+                            feedbackMsg = "Erro ao enviar campanha: ${e.message}"
+                        } finally {
+                            isSending = false
+                        }
+                    }
+                },
+                enabled = !isSending,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Send Now", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                if (isSending) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(22.dp))
+                } else {
+                    Text("Send Now", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                }
             }
         }
     }
 }
 
-
-// =========================================================
-// 4️⃣ PREVIEW – VISUALIZAÇÃO NO ANDROID STUDIO
-// =========================================================
 @Preview(showBackground = true)
 @Composable
 fun CampaignScreenPreview() {
     WTCChallengeTheme {
         Surface(color = Color(0xFF0D0D0D)) {
-            CampaignScreen(onMessagesClick = {},
+            CampaignScreen(
+                onMessagesClick = {},
                 onClientClick = {},
                 onCampaignClick = {},
-                onProfileClick = {})
+                onProfileClick = {}
+            )
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.wtcchallenge.composables
+package com.example.wtcchallenge.model
 
 data class Client(
     val id: String = "",
@@ -8,5 +8,7 @@ data class Client(
     val status: String = "",
     val tags: List<String> = emptyList(),
     val score: Int = 0,
-    val operatorId: String = ""
+    val operatorId: String = "",
+    val createdAt: String? = null,
+    val updatedAt: String? = null
 )

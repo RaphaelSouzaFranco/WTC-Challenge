@@ -12,12 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
-import com.example.wtcchallenge.composables.Client
+import com.example.wtcchallenge.model.Client
 
-// 🔸 Cada linha da lista de clientes
 @Composable
 fun ClientRow(cliente: Client) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -30,10 +29,12 @@ fun ClientRow(cliente: Client) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Esquerda: Avatar + Nome/Ramo
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF424242)),
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF424242)),
                 contentAlignment = Alignment.Center
             ) {}
             Spacer(modifier = Modifier.width(16.dp))
@@ -43,7 +44,6 @@ fun ClientRow(cliente: Client) {
             }
         }
 
-        // Direita: Ícone de score (expansível) + status
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (isExpanded) {
                 Icon(Icons.Default.Star, null, tint = Color(0xFFFFCC00), modifier = Modifier.size(16.dp))
@@ -51,19 +51,17 @@ fun ClientRow(cliente: Client) {
                 Text("Score: ${cliente.score}", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.width(8.dp))
             }
-
             Box(
                 modifier = Modifier
                     .size(8.dp)
                     .background(
                         color = if (cliente.status.equals("Ativo", ignoreCase = true))
-                            Color(0xFF2E7D32) // Verde
+                            Color(0xFF2E7D32)
                         else
-                            Color(0xFFD32F2F), // Vermelho
+                            Color(0xFFD32F2F),
                         shape = CircleShape
                     )
             )
-
         }
     }
 }

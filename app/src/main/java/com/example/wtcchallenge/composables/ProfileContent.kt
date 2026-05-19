@@ -1,16 +1,7 @@
 package com.example.wtcchallenge.composables
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -20,11 +11,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,16 +20,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.wtcchallenge.model.Operator
 
 @Composable
 fun ProfileContent(
     modifier: Modifier = Modifier,
+    operator: Operator,
     darkMode: Boolean,
     textColor: Color,
     secondaryColor: Color,
-    onToggleDarkMode: () -> Unit
+    onToggleDarkMode: () -> Unit,
+    onNotesChange: (String) -> Unit
 ) {
-    var notes by remember { mutableStateOf("") }
+    var notes by remember(operator.notas) { mutableStateOf(operator.notas ?: "") }
 
     Column(
         modifier = modifier
@@ -53,7 +43,6 @@ fun ProfileContent(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Foto de perfil
         Box(
             modifier = Modifier
                 .size(100.dp)
@@ -70,24 +59,11 @@ fun ProfileContent(
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Isabella Rossi", color = textColor, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Tags
-
+        Text(operator.nome.ifBlank { "Operador" }, color = textColor, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        Text(operator.cargo.ifBlank { "" }, color = Color(0xFF9EABBA), fontSize = 14.sp)
+        Text(operator.email, color = Color(0xFF9EABBA), fontSize = 12.sp)
 
         Spacer(modifier = Modifier.height(20.dp))
-        Text("Histórico de Mensagens", color = textColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-
-        Spacer(modifier = Modifier.height(8.dp))
-        MessageItem("Mensagem enviada: Promoção de verão", "20 de Julho, 2:30 PM", textColor)
-        MessageItem("Mensagem recebida: Dúvidas sobre o produto", "15 de Julho, 10:00 AM", textColor)
-        MessageItem("Mensagem enviada: Bem-vindos!", "10 de Julho, 4:45 PM", textColor)
-
-        Spacer(modifier = Modifier.height(16.dp))
         Text("Notas", color = textColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -100,11 +76,12 @@ fun ProfileContent(
         ) {
             BasicTextField(
                 value = notes,
-                onValueChange = { notes = it },
+                onValueChange = {
+                    notes = it
+                    onNotesChange(it)
+                },
                 textStyle = TextStyle(color = textColor, fontSize = 14.sp),
                 modifier = Modifier.fillMaxSize()
-
-
             )
         }
 
