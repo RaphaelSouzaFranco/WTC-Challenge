@@ -15,10 +15,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.wtcchallenge.Screens.ClientListScreen
+import com.example.wtcchallenge.Screens.ClientTimelineScreen
+import com.example.wtcchallenge.Screens.InboxScreen
 import com.example.wtcchallenge.Screens.LoginScreen
 import com.example.wtcchallenge.Screens.MessagesScreen
 import com.example.wtcchallenge.Screens.ProfileScreen
 import com.example.wtcchallenge.Screens.RegisterScreen
+import com.example.wtcchallenge.Screens.SegmentScreen
 import com.example.wtcchallenge.Screens.SupportScreen
 import com.example.wtcchallenge.composables.Screen
 import com.example.wtcchallenge.composables.screens.CampaignScreen
@@ -93,8 +96,43 @@ fun WTCApp(modifier: Modifier = Modifier) {
                 onProfileClick = { nav.navigate(Screen.Profile.route) },
                 onCampaignClick = { nav.navigate(Screen.Campaign.route) },
                 onMessagesClick = { nav.navigate(Screen.Messages.route) },
-                onClientClick = { nav.navigate(Screen.Client.route) }
+                onClientClick = { nav.navigate(Screen.Client.route) },
+                onTimelineClick = { clientId ->
+                    nav.navigate(Screen.ClientTimeline.withId(clientId))
+                },
+                onInboxClick = { clientId ->
+                    nav.navigate(Screen.Inbox.withId(clientId))
+                }
             )
+        }
+
+        composable(
+            route = Screen.ClientTimeline.route,
+            arguments = listOf(navArgument("clientId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val clientId = backStackEntry.arguments?.getString("clientId") ?: ""
+            ClientTimelineScreen(
+                clientId = clientId,
+                onBack = { nav.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Screen.Inbox.route,
+            arguments = listOf(navArgument("customerId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val customerId = backStackEntry.arguments?.getString("customerId") ?: ""
+            InboxScreen(
+                customerId = customerId,
+                onBack = { nav.popBackStack() },
+                onChatClick = { conversationId ->
+                    nav.navigate(Screen.Chat.withId(conversationId))
+                }
+            )
+        }
+
+        composable(Screen.Segments.route) {
+            SegmentScreen(onBack = { nav.popBackStack() })
         }
 
         composable(Screen.Campaign.route) {
@@ -102,7 +140,8 @@ fun WTCApp(modifier: Modifier = Modifier) {
                 onProfileClick = { nav.navigate(Screen.Profile.route) },
                 onCampaignClick = { nav.navigate(Screen.Campaign.route) },
                 onMessagesClick = { nav.navigate(Screen.Messages.route) },
-                onClientClick = { nav.navigate(Screen.Client.route) }
+                onClientClick = { nav.navigate(Screen.Client.route) },
+                onSegmentsClick = { nav.navigate(Screen.Segments.route) }
             )
         }
 

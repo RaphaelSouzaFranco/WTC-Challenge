@@ -1,7 +1,9 @@
 package com.wtc.backend.service;
 
+import com.wtc.backend.dto.ABTestRequest;
 import com.wtc.backend.dto.CampaignDTO;
 import com.wtc.backend.dto.CampaignRequest;
+import com.wtc.backend.dto.ScheduleRequest;
 import com.wtc.backend.model.Campaign;
 import com.wtc.backend.repository.CampaignRepository;
 import org.springframework.stereotype.Service;
@@ -56,6 +58,38 @@ public class CampaignService {
         return toDTO(campaignRepository.save(campaign));
     }
 
+    public CampaignDTO schedule(String id, ScheduleRequest request) {
+        Campaign campaign = campaignRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Campanha não encontrada: " + id));
+        if (!"DRAFT".equals(campaign.getStatus())) {
+            throw new RuntimeException("Apenas campanhas em DRAFT podem ser agendadas");
+        }
+        campaign.setStatus("SCHEDULED");
+        campaign.setScheduledAt(request.getScheduledAt());
+        return toDTO(campaignRepository.save(campaign));
+    }
+
+    public List<CampaignDTO> createABTest(String id, ABTestRequest request) {
+        Campaign original = campaignRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Campanha não encontrada: " + id));
+        original.setVariantLabel("A");
+        campaignRepository.save(original);
+
+        Campaign variantB = Campaign.builder()
+                .titulo(request.getTituloB())
+                .mensagem(request.getMensagemB())
+                .targetAudience(original.getTargetAudience())
+                .status("DRAFT")
+                .operatorId(original.getOperatorId())
+                .build();
+        variantB.setSegmentId(original.getSegmentId());
+        variantB.setVariantOf(original.getId());
+        variantB.setVariantLabel("B");
+        campaignRepository.save(variantB);
+
+        return List.of(toDTO(original), toDTO(variantB));
+    }
+
     public void delete(String id) {
         Campaign campaign = campaignRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Campanha não encontrada: " + id));
@@ -65,7 +99,9 @@ public class CampaignService {
 
     public CampaignDTO toDTO(Campaign c) {
         return CampaignDTO.builder().id(c.getId()).titulo(c.getTitulo()).mensagem(c.getMensagem())
-                .targetAudience(c.getTargetAudience()).mediaUrl(c.getMediaUrl()).status(c.getStatus())
-                .operatorId(c.getOperatorId()).sentAt(c.getSentAt()).createdAt(c.getCreatedAt()).build();
+                .targetAudience(c.getTargetAudience()).segmentId(c.getSegmentId())
+                .mediaUrl(c.getMediaUrl()).status(c.getStatus())
+                .operatorId(c.getOperatorId()).variantOf(c.getVariantOf()).variantLabel(c.getVariantLabel())
+                .scheduledAt(c.getScheduledAt()).sentAt(c.getSentAt()).createdAt(c.getCreatedAt()).build();
     }
 }

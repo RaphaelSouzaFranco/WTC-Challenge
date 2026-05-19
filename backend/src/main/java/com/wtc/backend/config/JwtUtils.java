@@ -36,20 +36,33 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    /**
-     * Gera um token JWT para o operador autenticado.
-     *
-     * @param email      e-mail do operador (subject do token)
-     * @param operatorId ID MongoDB do operador
-     */
+    @Value("${app.jwt.refresh-expiration-ms:604800000}")
+    private long refreshExpirationMs;
+
     public String generateToken(String email, String operatorId) {
         return Jwts.builder()
                 .subject(email)
                 .claim("operatorId", operatorId)
+                .claim("type", "access")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey())
                 .compact();
+    }
+
+    public String generateRefreshToken(String email, String operatorId) {
+        return Jwts.builder()
+                .subject(email)
+                .claim("operatorId", operatorId)
+                .claim("type", "refresh")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshExpirationMs))
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    public boolean isRefreshToken(String token) {
+        return "refresh".equals(parseClaims(token).get("type", String.class));
     }
 
     /**

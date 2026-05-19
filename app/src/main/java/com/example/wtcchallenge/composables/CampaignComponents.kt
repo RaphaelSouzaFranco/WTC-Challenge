@@ -102,8 +102,8 @@ fun TargetAudienceDropdown(
     currentAudience: String,                 // Valor atual selecionado
     onAudienceSelected: (String) -> Unit,    // Callback quando o usuário escolhe uma opção
 ) {
-    var isExpanded by remember { mutableStateOf(false) }                 // Estado que controla se o menu está aberto
-    val audienceOptions = listOf("Simple", "Advanced", "Custom List")    // Opções do dropdown
+    var isExpanded by remember { mutableStateOf(false) }
+    val audienceOptions = listOf("Simple", "Segment", "Advanced", "Custom List")
 
     Box(
         modifier = Modifier
@@ -147,6 +147,59 @@ fun TargetAudienceDropdown(
                         onAudienceSelected(option)                       // Atualiza o valor
                         isExpanded = false                               // Fecha o menu
                     },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SegmentDropdown(
+    segments: List<com.example.wtcchallenge.model.Segment>,
+    selectedId: String?,
+    onSelected: (String?) -> Unit
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val selectedSegment = segments.find { it.id == selectedId }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(darkSurface)
+            .clickable { isExpanded = true }
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                selectedSegment?.let { "${it.nome} (${it.clientCount})" } ?: "Selecione um segmento",
+                color = if (selectedSegment != null) lightText else secondaryText,
+                fontSize = 16.sp
+            )
+            Icon(Icons.Default.KeyboardArrowDown, null, tint = secondaryText, modifier = Modifier.size(24.dp))
+        }
+
+        DropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { isExpanded = false },
+            modifier = Modifier.background(darkSurface)
+        ) {
+            segments.forEach { segment ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            "${segment.nome} (${segment.clientCount} clientes)",
+                            color = if (segment.id == selectedId) Color(0xFF1E88E5) else lightText
+                        )
+                    },
+                    onClick = {
+                        onSelected(segment.id)
+                        isExpanded = false
+                    }
                 )
             }
         }

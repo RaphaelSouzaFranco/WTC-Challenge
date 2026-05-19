@@ -27,7 +27,9 @@ fun ClientListScreen(
     onMessagesClick: () -> Unit,
     onCampaignClick: () -> Unit,
     onClientClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onTimelineClick: ((String) -> Unit)? = null,
+    onInboxClick: ((String) -> Unit)? = null
 ) {
     var textoBusca by remember { mutableStateOf(TextFieldValue("")) }
     var clientes by remember { mutableStateOf<List<Client>>(emptyList()) }
@@ -140,7 +142,11 @@ fun ClientListScreen(
                 }
                 else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(clientesFiltrados) { cliente ->
-                        ClientRow(cliente = cliente)
+                        ClientRow(
+                            cliente = cliente,
+                            onTimelineClick = onTimelineClick,
+                            onInboxClick = onInboxClick
+                        )
                         HorizontalDivider(color = Color(0xFF293038), thickness = 1.dp)
                     }
                 }

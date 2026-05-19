@@ -145,6 +145,7 @@ fun LoginScreen(onLogin: () -> Unit, onCadastrar: () -> Unit) {
                                 LoginRequestDto(email.text.trim(), senha.text)
                             )
                             SessionManager.authToken = response.token
+                            SessionManager.refreshToken = response.refreshToken
                             SessionManager.operatorId = response.operator.id
                             SessionManager.operatorName = response.operator.nome
                             onLogin()

@@ -36,6 +36,9 @@ public interface ConversationRepository extends MongoRepository<Conversation, St
      */
     List<Conversation> findByOperatorIdAndIsGroupTrueOrderByLastMessageAtDesc(String operatorId);
 
+    /** Busca conversas de um cliente específico */
+    List<Conversation> findByClientIdOrderByLastMessageAtDesc(String clientId);
+
     /** Busca a conversa de um cliente específico com um operador */
     Optional<Conversation> findByClientIdAndOperatorId(String clientId, String operatorId);
 

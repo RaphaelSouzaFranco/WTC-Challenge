@@ -2,6 +2,7 @@ package com.example.wtcchallenge.network
 
 object SessionManager {
     var authToken: String? = null
+    var refreshToken: String? = null
     var operatorId: String? = null
     var operatorName: String? = null
 
@@ -9,6 +10,7 @@ object SessionManager {
 
     fun clear() {
         authToken = null
+        refreshToken = null
         operatorId = null
         operatorName = null
     }

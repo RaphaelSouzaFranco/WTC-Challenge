@@ -34,8 +34,23 @@ public class AuthService {
         Operator operator = operatorRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Operador não encontrado"));
         String token = jwtUtils.generateToken(operator.getEmail(), operator.getId());
+        String refreshToken = jwtUtils.generateRefreshToken(operator.getEmail(), operator.getId());
         return LoginResponse.builder()
-                .token(token).tokenType("Bearer").operator(toDTO(operator)).build();
+                .token(token).refreshToken(refreshToken).tokenType("Bearer").operator(toDTO(operator)).build();
+    }
+
+    public LoginResponse refresh(String refreshToken) {
+        if (!jwtUtils.validateToken(refreshToken) || !jwtUtils.isRefreshToken(refreshToken)) {
+            throw new RuntimeException("Refresh token inválido ou expirado");
+        }
+        String email = jwtUtils.getEmailFromToken(refreshToken);
+        String operatorId = jwtUtils.getOperatorIdFromToken(refreshToken);
+        Operator operator = operatorRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Operador não encontrado"));
+        String newToken = jwtUtils.generateToken(operator.getEmail(), operator.getId());
+        String newRefreshToken = jwtUtils.generateRefreshToken(operator.getEmail(), operator.getId());
+        return LoginResponse.builder()
+                .token(newToken).refreshToken(newRefreshToken).tokenType("Bearer").operator(toDTO(operator)).build();
     }
 
     public boolean emailJaCadastrado(String email) {

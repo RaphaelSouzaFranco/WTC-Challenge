@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($javaExe = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21.0.9.10-hotspot\\\\bin\\\\java.exe\"; $wrapperJar = \"C:\\\\Users\\\\Aline\\\\Downloads\\\\Fiap\\\\2 Ano\\\\FASE 07\\\\Trabalhos\\\\WTC-Challenge\\\\backend\\\\.mvn\\\\wrapper\\\\maven-wrapper.jar\"; $baseDir = \"C:\\\\Users\\\\Aline\\\\Downloads\\\\Fiap\\\\2 Ano\\\\FASE 07\\\\Trabalhos\\\\WTC-Challenge\\\\backend\"; & $javaExe \"-Dmaven.multiModuleProjectDirectory=$baseDir\" -jar $wrapperJar -f \"$baseDir\\\\pom.xml\" compile 2>&1 | Select-Object -Last 60)"
+    ]
+  }
+}
