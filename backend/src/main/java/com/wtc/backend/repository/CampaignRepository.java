@@ -21,4 +21,10 @@ public interface CampaignRepository extends MongoRepository<Campaign, String> {
 
     /** Busca campanhas por público-alvo */
     List<Campaign> findByTargetAudience(String targetAudience);
+
+    /** Busca campanhas agendadas prontas para envio */
+    List<Campaign> findByStatusAndScheduledAtBefore(String status, java.time.Instant before);
+
+    /** Busca variantes de uma campanha A/B */
+    List<Campaign> findByVariantOf(String variantOf);
 }

@@ -9,5 +9,12 @@ sealed class Screen(val route: String) {
     }
     data object Campaign : Screen("campaign")
     data object Client : Screen("client")
+    data object ClientTimeline : Screen("client/{clientId}/timeline") {
+        fun withId(id: String) = "client/$id/timeline"
+    }
+    data object Inbox : Screen("inbox/{customerId}") {
+        fun withId(id: String) = "inbox/$id"
+    }
+    data object Segments : Screen("segments")
     data object Profile : Screen("profile")
 }

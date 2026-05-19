@@ -15,11 +15,15 @@ public class Campaign {
     private String titulo;
     private String mensagem;
     private String targetAudience;
+    private String segmentId;
     private String mediaUrl;
     private String status;
     @Indexed
     private String operatorId;
+    private Instant scheduledAt;
     private Instant sentAt;
+    private String variantOf;
+    private String variantLabel;
     @CreatedDate
     private Instant createdAt;
 
@@ -57,8 +61,16 @@ public class Campaign {
     public void setStatus(String status) { this.status = status; }
     public String getOperatorId() { return operatorId; }
     public void setOperatorId(String operatorId) { this.operatorId = operatorId; }
+    public String getSegmentId() { return segmentId; }
+    public void setSegmentId(String segmentId) { this.segmentId = segmentId; }
+    public Instant getScheduledAt() { return scheduledAt; }
+    public void setScheduledAt(Instant scheduledAt) { this.scheduledAt = scheduledAt; }
     public Instant getSentAt() { return sentAt; }
     public void setSentAt(Instant sentAt) { this.sentAt = sentAt; }
+    public String getVariantOf() { return variantOf; }
+    public void setVariantOf(String variantOf) { this.variantOf = variantOf; }
+    public String getVariantLabel() { return variantLabel; }
+    public void setVariantLabel(String variantLabel) { this.variantLabel = variantLabel; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 }

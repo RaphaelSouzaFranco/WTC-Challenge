@@ -2,6 +2,7 @@ package com.wtc.backend.controller;
 
 import com.wtc.backend.dto.ClientDTO;
 import com.wtc.backend.dto.ClientRequest;
+import com.wtc.backend.dto.TimelineEventDTO;
 import com.wtc.backend.service.ClientService;
 import jakarta.validation.Valid;
 
@@ -82,6 +83,11 @@ public class ClientController {
      *
      * Response 201: ClientDTO
      */
+    @GetMapping("/{id}/timeline")
+    public ResponseEntity<List<TimelineEventDTO>> getTimeline(@PathVariable String id) {
+        return ResponseEntity.ok(clientService.getTimeline(id));
+    }
+
     @PostMapping
     public ResponseEntity<ClientDTO> create(@Valid @RequestBody ClientRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)

@@ -1,7 +1,9 @@
 package com.wtc.backend.controller;
 
+import com.wtc.backend.dto.ABTestRequest;
 import com.wtc.backend.dto.CampaignDTO;
 import com.wtc.backend.dto.CampaignRequest;
+import com.wtc.backend.dto.ScheduleRequest;
 import com.wtc.backend.service.CampaignService;
 import jakarta.validation.Valid;
 
@@ -119,6 +121,20 @@ public class CampaignController {
      * Remove a campanha e deleta o arquivo de mídia associado.
      * Response 200: { "message": "Campanha removida com sucesso" }
      */
+    @PostMapping("/{id}/schedule")
+    public ResponseEntity<CampaignDTO> schedule(
+            @PathVariable String id,
+            @Valid @RequestBody ScheduleRequest request) {
+        return ResponseEntity.ok(campaignService.schedule(id, request));
+    }
+
+    @PostMapping("/{id}/abtest")
+    public ResponseEntity<List<CampaignDTO>> abtest(
+            @PathVariable String id,
+            @Valid @RequestBody ABTestRequest request) {
+        return ResponseEntity.ok(campaignService.createABTest(id, request));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> delete(@PathVariable String id) {
         campaignService.delete(id);

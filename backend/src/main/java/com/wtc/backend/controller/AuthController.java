@@ -2,6 +2,7 @@ package com.wtc.backend.controller;
 
 import com.wtc.backend.dto.LoginRequest;
 import com.wtc.backend.dto.LoginResponse;
+import com.wtc.backend.dto.RefreshRequest;
 import com.wtc.backend.dto.RegisterRequest;
 import com.wtc.backend.service.AuthService;
 import jakarta.validation.Valid;
@@ -75,6 +76,12 @@ public class AuthController {
      * Response 201: OperatorDTO do operador criado
      * Response 409: e-mail já cadastrado
      */
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refresh(@Valid @RequestBody RefreshRequest request) {
+        LoginResponse response = authService.refresh(request.getRefreshToken());
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         if (authService.emailJaCadastrado(request.getEmail())) {
