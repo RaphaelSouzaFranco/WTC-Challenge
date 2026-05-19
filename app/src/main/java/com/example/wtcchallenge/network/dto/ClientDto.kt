@@ -1,6 +1,6 @@
-package com.example.wtcchallenge.composables
+package com.example.wtcchallenge.network.dto
 
-data class Client(
+data class ClientDto(
     val id: String = "",
     val nome: String = "",
     val numero: String = "",

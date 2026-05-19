@@ -3,27 +3,11 @@ package com.example.wtcchallenge.Screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,15 +19,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
-import androidx.compose.foundation.Image  // ADICIONADO
-import androidx.compose.ui.res.painterResource  // ADICIONADO
 import com.example.wtcchallenge.R
+import com.example.wtcchallenge.network.RetrofitInstance
+import com.example.wtcchallenge.network.SessionManager
+import com.example.wtcchallenge.network.dto.LoginRequestDto
+import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
+import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(onLogin: () -> Unit) {
+fun LoginScreen(onLogin: () -> Unit, onCadastrar: () -> Unit) {
     var email by remember { mutableStateOf(TextFieldValue("")) }
     var senha by remember { mutableStateOf(TextFieldValue("")) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val scope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier
@@ -58,16 +48,12 @@ fun LoginScreen(onLogin: () -> Unit) {
                 .padding(horizontal = 32.dp)
                 .fillMaxWidth()
         ) {
-
             Image(
                 painter = painterResource(id = R.drawable.logowtc),
                 contentDescription = "Logo WTC",
-                modifier = Modifier
-                    .size(265.dp)
-
+                modifier = Modifier.size(265.dp)
             )
 
-            // Campo Email
             TextField(
                 value = email,
                 onValueChange = { email = it },
@@ -88,7 +74,6 @@ fun LoginScreen(onLogin: () -> Unit) {
                     .padding(bottom = 12.dp)
             )
 
-            // Campo Senha
             TextField(
                 value = senha,
                 onValueChange = { senha = it },
@@ -105,39 +90,96 @@ fun LoginScreen(onLogin: () -> Unit) {
                     unfocusedTextColor = Color.White
                 ),
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Texto "Esqueci minha senha"
-            Text(
-                text = "Esqueci minha senha",
-                color = Color(0xFF9EABBA),
-                fontSize = 14.sp,
+            Row(
                 modifier = Modifier
-                    .align(Alignment.Start)
-                    .clickable { /* ação futura */ }
-                    .padding(start = 4.dp, bottom = 24.dp)
-            )
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Esqueci minha senha",
+                    color = Color(0xFF9EABBA),
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .clickable { }
+                        .padding(start = 4.dp)
+                )
+                Text(
+                    text = "Cadastre-se",
+                    color = Color(0xFF9EABBA),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .clickable { onCadastrar() }
+                        .padding(end = 4.dp)
+                )
+            }
 
-            // Botão Entrar
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage!!,
+                    color = Color.Red,
+                    fontSize = 13.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                )
+            }
+
             Button(
-                onClick = {onLogin() },
+                onClick = {
+                    if (email.text.isBlank() || senha.text.isBlank()) {
+                        errorMessage = "Preencha e-mail e senha."
+                        return@Button
+                    }
+                    scope.launch {
+                        isLoading = true
+                        errorMessage = null
+                        try {
+                            val response = RetrofitInstance.api.login(
+                                LoginRequestDto(email.text.trim(), senha.text)
+                            )
+                            SessionManager.authToken = response.token
+                            SessionManager.operatorId = response.operator.id
+                            SessionManager.operatorName = response.operator.nome
+                            onLogin()
+                        } catch (e: retrofit2.HttpException) {
+                            errorMessage = when (e.code()) {
+                                401 -> "E-mail ou senha inválidos."
+                                else -> "Erro do servidor (${e.code()})."
+                            }
+                        } catch (e: java.net.ConnectException) {
+                            errorMessage = "Não foi possível conectar ao servidor. Verifique se o backend está rodando."
+                        } catch (e: Exception) {
+                            errorMessage = "Erro: ${e.message}"
+                        } finally {
+                            isLoading = false
+                        }
+                    }
+                },
+                enabled = !isLoading,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007BFF)),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
-                Text(
-                    text = "Entrar",
-                    color = Color.White,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(22.dp))
+                } else {
+                    Text(
+                        text = "Entrar",
+                        color = Color.White,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
@@ -148,7 +190,7 @@ fun LoginScreen(onLogin: () -> Unit) {
 fun LoginScreenPreview() {
     WTCChallengeTheme {
         Surface(color = Color(0xFF0D0D0D)) {
-            LoginScreen(onLogin = {})
+            LoginScreen(onLogin = {}, onCadastrar = {})
         }
     }
 }

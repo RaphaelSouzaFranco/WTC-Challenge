@@ -38,6 +38,10 @@ public class AuthService {
                 .token(token).tokenType("Bearer").operator(toDTO(operator)).build();
     }
 
+    public boolean emailJaCadastrado(String email) {
+        return operatorRepository.findByEmail(email).isPresent();
+    }
+
     public Operator createOperator(String nome, String email, String senha, String cargo) {
         Operator operator = Operator.builder()
                 .nome(nome).email(email).senha(passwordEncoder.encode(senha))

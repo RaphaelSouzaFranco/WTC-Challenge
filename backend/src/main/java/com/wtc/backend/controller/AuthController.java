@@ -2,9 +2,11 @@ package com.wtc.backend.controller;
 
 import com.wtc.backend.dto.LoginRequest;
 import com.wtc.backend.dto.LoginResponse;
+import com.wtc.backend.dto.RegisterRequest;
 import com.wtc.backend.service.AuthService;
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,6 +62,35 @@ public class AuthController {
      * Response 200:
      * { "message": "Logout realizado com sucesso" }
      */
+    /**
+     * POST /api/auth/register
+     *
+     * Request:
+     * {
+     *   "nome": "João Silva",
+     *   "email": "joao@wtc.com",
+     *   "senha": "minhasenha"
+     * }
+     *
+     * Response 201: OperatorDTO do operador criado
+     * Response 409: e-mail já cadastrado
+     */
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        if (authService.emailJaCadastrado(request.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "E-mail já cadastrado."));
+        }
+        authService.createOperator(
+                request.getNome(),
+                request.getEmail(),
+                request.getSenha(),
+                request.getCargo()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("message", "Operador cadastrado com sucesso."));
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout() {
         return ResponseEntity.ok(Map.of("message", "Logout realizado com sucesso"));

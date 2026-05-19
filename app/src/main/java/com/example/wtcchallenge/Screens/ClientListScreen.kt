@@ -13,17 +13,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.wtcchallenge.composables.BottomNavigationBar
-import com.example.wtcchallenge.composables.Client
 import com.example.wtcchallenge.composables.ClientRow
 import com.example.wtcchallenge.composables.FiltroItem
+import com.example.wtcchallenge.model.Client
 import com.example.wtcchallenge.network.RetrofitInstance
-import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 import kotlinx.coroutines.launch
 
-//INICIO DA FUNÇÃO
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClientListScreen(
@@ -32,46 +29,34 @@ fun ClientListScreen(
     onClientClick: () -> Unit,
     onProfileClick: () -> Unit
 ) {
-    // ESTADO: Barra de busca
     var textoBusca by remember { mutableStateOf(TextFieldValue("")) }
-
-    // ESTADO: Lista de clientes
     var clientes by remember { mutableStateOf<List<Client>>(emptyList()) }
-
-    // ESTADO: Loading e Erro
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Coroutine Scope
     val scope = rememberCoroutineScope()
 
-    // CARREGA OS CLIENTES DA API
-    LaunchedEffect(Unit) {
+    fun loadClients(search: String? = null) {
         scope.launch {
+            isLoading = true
+            errorMessage = null
             try {
-                isLoading = true
-                errorMessage = null
-                val lista = RetrofitInstance.api.getClients()
-                clientes = lista
+                clientes = RetrofitInstance.api.getClients(search = search?.ifBlank { null })
             } catch (e: Exception) {
                 errorMessage = "Erro ao carregar clientes: ${e.message}"
-                e.printStackTrace()
             } finally {
                 isLoading = false
             }
         }
     }
 
-    // LÓGICA DE BUSCA E FILTRO
-    val textoBuscaString = textoBusca.text
-    val clientesFiltrados = remember(clientes, textoBuscaString) {
-        if (textoBuscaString.isBlank()) {
-            clientes
-        } else {
-            clientes.filter { cliente ->
-                cliente.nome.contains(textoBuscaString, ignoreCase = true) ||
-                        cliente.ramo.contains(textoBuscaString, ignoreCase = true)
-            }
+    LaunchedEffect(Unit) { loadClients() }
+
+    val clientesFiltrados = remember(clientes, textoBusca.text) {
+        val q = textoBusca.text
+        if (q.isBlank()) clientes
+        else clientes.filter { c ->
+            c.nome.contains(q, ignoreCase = true) || c.ramo.contains(q, ignoreCase = true)
         }
     }
 
@@ -85,33 +70,11 @@ fun ClientListScreen(
                     titleContentColor = Color.White
                 ),
                 actions = {
-                    IconButton(onClick = {
-                        // Recarregar lista
-                        scope.launch {
-                            try {
-                                isLoading = true
-                                errorMessage = null
-                                val lista = RetrofitInstance.api.getClients()
-                                clientes = lista
-                            } catch (e: Exception) {
-                                errorMessage = "Erro ao recarregar: ${e.message}"
-                            } finally {
-                                isLoading = false
-                            }
-                        }
-                    }) {
-                        Icon(
-                            Icons.Default.Refresh,
-                            contentDescription = "Recarregar",
-                            tint = Color.White
-                        )
+                    IconButton(onClick = { loadClients(textoBusca.text) }) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Recarregar", tint = Color.White)
                     }
                     IconButton(onClick = {}) {
-                        Icon(
-                            Icons.Default.Add,
-                            contentDescription = "Adicionar Cliente",
-                            tint = Color.White
-                        )
+                        Icon(Icons.Default.Add, contentDescription = "Adicionar Cliente", tint = Color.White)
                     }
                 }
             )
@@ -133,7 +96,6 @@ fun ClientListScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            // BARRA DE BUSCA
             TextField(
                 value = textoBusca,
                 onValueChange = { textoBusca = it },
@@ -149,25 +111,15 @@ fun ClientListScreen(
                     unfocusedTextColor = Color.White
                 ),
                 leadingIcon = {
-                    Icon(
-                        Icons.Default.Search,
-                        contentDescription = "Ícone de busca",
-                        tint = Color(0xFF9EABBA)
-                    )
+                    Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF9EABBA))
                 },
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp)
+                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // LINHA DE FILTROS
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 FiltroItem(text = "Tags")
                 FiltroItem(text = "Score")
                 FiltroItem(text = "Status")
@@ -175,71 +127,24 @@ fun ClientListScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // CONTEÚDO: Loading, Erro ou Lista
             when {
-                isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = Color.White)
+                isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Color.White)
+                }
+                errorMessage != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(errorMessage!!, color = Color.Red)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = { loadClients() }) { Text("Tentar Novamente") }
                     }
                 }
-                errorMessage != null -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = errorMessage ?: "Erro desconhecido",
-                                color = Color.Red
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(onClick = {
-                                scope.launch {
-                                    try {
-                                        isLoading = true
-                                        errorMessage = null
-                                        val lista = RetrofitInstance.api.getClients()
-                                        clientes = lista
-                                    } catch (e: Exception) {
-                                        errorMessage = "Erro: ${e.message}"
-                                    } finally {
-                                        isLoading = false
-                                    }
-                                }
-                            }) {
-                                Text("Tentar Novamente")
-                            }
-                        }
-                    }
-                }
-                else -> {
-                    // LISTA DE CLIENTES
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(clientesFiltrados) { cliente ->
-                            ClientRow(cliente = cliente)
-                            HorizontalDivider(color = Color(0xFF293038), thickness = 1.dp)
-                        }
+                else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(clientesFiltrados) { cliente ->
+                        ClientRow(cliente = cliente)
+                        HorizontalDivider(color = Color(0xFF293038), thickness = 1.dp)
                     }
                 }
             }
-        }
-    }
-}
-@Preview(showBackground = true)
-@Composable
-fun ClientListScreenPreview() {
-    WTCChallengeTheme {
-        Surface(color = Color(0xFF0D0D0D)) {
-            ClientListScreen(onMessagesClick = {},
-                onClientClick = {},
-                onCampaignClick = {},
-                onProfileClick = {}
-            )
         }
     }
 }
