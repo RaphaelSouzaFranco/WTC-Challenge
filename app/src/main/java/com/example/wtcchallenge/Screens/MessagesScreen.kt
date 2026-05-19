@@ -29,7 +29,7 @@ fun MessagesScreen(
     onCampaignClick: () -> Unit,
     onClientClick: () -> Unit,
     onProfileClick: () -> Unit,
-    onChatClick: (conversationId: String) -> Unit
+    onChatClick: (clientId: String) -> Unit
 ) {
     var selectedFilter by remember { mutableStateOf("Todos") }
     var conversations by remember { mutableStateOf<List<Conversation>>(emptyList()) }
@@ -112,7 +112,7 @@ fun MessagesScreen(
                 }
                 else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxSize()) {
                     items(conversations) { conv ->
-                        ConversationItem(conversation = conv, onClick = { onChatClick(conv.id) })
+                        ConversationItem(conversation = conv, onClick = { onChatClick(conv.clientId) })
                     }
                 }
             }

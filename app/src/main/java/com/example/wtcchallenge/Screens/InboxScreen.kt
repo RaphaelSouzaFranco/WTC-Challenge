@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.example.wtcchallenge.composables.ChatBottomBar
 import com.example.wtcchallenge.composables.SupportMessage
 import com.example.wtcchallenge.composables.UserMessage
+import com.example.wtcchallenge.composables.simpleVerticalScrollbar
 import com.example.wtcchallenge.model.Client
 import com.example.wtcchallenge.model.Message
 import com.example.wtcchallenge.network.RetrofitInstance
@@ -52,13 +53,19 @@ fun InboxScreen(
         try {
             client = RetrofitInstance.api.getClientById(customerId)
             messages = RetrofitInstance.api.getInboxMessages(customerId)
+                .sortedBy { it.createdAt ?: "" }
             conversationId = RetrofitInstance.api.getInboxConversations(customerId)
                 .firstOrNull()?.id
-            if (messages.isNotEmpty()) listState.scrollToItem(messages.lastIndex)
         } catch (e: Exception) {
             errorMessage = "Erro ao carregar inbox: ${e.message}"
         } finally {
             isLoading = false
+        }
+    }
+
+    LaunchedEffect(isLoading, messages.size) {
+        if (!isLoading && messages.isNotEmpty()) {
+            listState.scrollToItem(messages.lastIndex)
         }
     }
 
@@ -153,7 +160,8 @@ fun InboxScreen(
                     state = listState,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 16.dp)
+                        .simpleVerticalScrollbar(listState),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(vertical = 16.dp)
                 ) {
