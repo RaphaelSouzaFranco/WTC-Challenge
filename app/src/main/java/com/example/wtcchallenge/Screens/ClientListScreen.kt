@@ -63,10 +63,14 @@ fun ClientListScreen(
     LaunchedEffect(Unit) { loadClients() }
 
     val clientesFiltrados = remember(clientes, textoBusca.text) {
-        val q = textoBusca.text
+        val q = textoBusca.text.trim()
         if (q.isBlank()) clientes
         else clientes.filter { c ->
-            c.nome.contains(q, ignoreCase = true) || c.ramo.contains(q, ignoreCase = true)
+            c.nome.contains(q, ignoreCase = true) ||
+                c.ramo.contains(q, ignoreCase = true) ||
+                c.status.contains(q, ignoreCase = true) ||
+                c.tags.any { tag -> tag.contains(q, ignoreCase = true) } ||
+                c.score.toString().contains(q)
         }
     }
 
