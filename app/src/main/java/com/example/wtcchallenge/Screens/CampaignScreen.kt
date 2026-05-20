@@ -21,12 +21,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.wtcchallenge.ui.theme.WTCChallengeTheme
 import com.example.wtcchallenge.composables.*
+import com.example.wtcchallenge.model.Client
 import com.example.wtcchallenge.model.Segment
 import com.example.wtcchallenge.network.RetrofitInstance
 import com.example.wtcchallenge.network.SessionManager
 import com.example.wtcchallenge.network.dto.ABTestRequestDto
 import com.example.wtcchallenge.network.dto.CampaignRequestDto
+import com.example.wtcchallenge.network.dto.MessageRequestDto
 import com.example.wtcchallenge.network.dto.ScheduleRequestDto
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.Alignment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -56,6 +62,7 @@ fun CampaignScreen(
 
     var scheduleHours by remember { mutableStateOf(TextFieldValue("")) }
     var showABTestDialog by remember { mutableStateOf(false) }
+    var showRecipientsDialog by remember { mutableStateOf(false) }
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
@@ -75,6 +82,78 @@ fun CampaignScreen(
             val operatorId = SessionManager.operatorId ?: return@LaunchedEffect
             segments = RetrofitInstance.api.getSegments(operatorId)
         } catch (_: Exception) {}
+    }
+
+    if (showRecipientsDialog) {
+        RecipientsDialog(
+            onDismiss = { showRecipientsDialog = false },
+            onConfirm = { selectedClients ->
+                showRecipientsDialog = false
+                scope.launch {
+                    isSending = true
+                    feedbackMsg = null
+                    try {
+                        val operatorId = SessionManager.operatorId ?: run {
+                            feedbackMsg = "Erro: sessao expirada."
+                            return@launch
+                        }
+                        val campaign = RetrofitInstance.api.createCampaign(
+                            CampaignRequestDto(
+                                titulo = titulo.text.trim(),
+                                mensagem = mensagem.text.trim(),
+                                targetAudience = targetAudience,
+                                segmentId = selectedSegmentId,
+                                operatorId = operatorId
+                            )
+                        )
+                        imageUri?.let { uri ->
+                            withContext(Dispatchers.IO) {
+                                val inputStream = context.contentResolver.openInputStream(uri)
+                                val bytes = inputStream?.readBytes() ?: byteArrayOf()
+                                inputStream?.close()
+                                val contentType = context.contentResolver.getType(uri) ?: "image/jpeg"
+                                val requestBody = bytes.toRequestBody(contentType.toMediaTypeOrNull())
+                                val part = MultipartBody.Part.createFormData(
+                                    "file", "campaign_image.jpg", requestBody
+                                )
+                                RetrofitInstance.api.uploadCampaignMedia(campaign.id, part)
+                            }
+                        }
+
+                        val conteudo = "📢 ${titulo.text.trim()}\n\n${mensagem.text.trim()}"
+                        var entreguesComSucesso = 0
+                        selectedClients.forEach { cliente ->
+                            try {
+                                val conv = RetrofitInstance.api.getOrCreateConversation(
+                                    mapOf("clientId" to cliente.id, "operatorId" to operatorId)
+                                )
+                                RetrofitInstance.api.sendMessage(
+                                    conv.id,
+                                    MessageRequestDto(
+                                        senderId = operatorId,
+                                        senderType = "OPERATOR",
+                                        content = conteudo
+                                    )
+                                )
+                                entreguesComSucesso++
+                            } catch (_: Exception) { /* tenta os próximos */ }
+                        }
+
+                        RetrofitInstance.api.sendCampaign(campaign.id)
+
+                        feedbackMsg = "Campanha entregue para $entreguesComSucesso de ${selectedClients.size} cliente(s)."
+                        titulo = TextFieldValue("")
+                        mensagem = TextFieldValue("")
+                        scheduleHours = TextFieldValue("")
+                        imageUri = null
+                    } catch (e: Exception) {
+                        feedbackMsg = "Erro ao enviar campanha: ${e.message}"
+                    } finally {
+                        isSending = false
+                    }
+                }
+            }
+        )
     }
 
     if (showABTestDialog) {
@@ -225,60 +304,59 @@ fun CampaignScreen(
                         feedbackMsg = "Preencha titulo e mensagem."
                         return@Button
                     }
-                    scope.launch {
-                        isSending = true
-                        feedbackMsg = null
-                        try {
-                            val operatorId = SessionManager.operatorId ?: run {
-                                feedbackMsg = "Erro: sessao expirada."
-                                return@launch
-                            }
-                            val campaign = RetrofitInstance.api.createCampaign(
-                                CampaignRequestDto(
-                                    titulo = titulo.text.trim(),
-                                    mensagem = mensagem.text.trim(),
-                                    targetAudience = targetAudience,
-                                    segmentId = selectedSegmentId,
-                                    operatorId = operatorId
-                                )
-                            )
-
-                            // Upload da imagem se selecionada
-                            imageUri?.let { uri ->
-                                withContext(Dispatchers.IO) {
-                                    val inputStream = context.contentResolver.openInputStream(uri)
-                                    val bytes = inputStream?.readBytes() ?: byteArrayOf()
-                                    inputStream?.close()
-                                    val contentType = context.contentResolver.getType(uri) ?: "image/jpeg"
-                                    val requestBody = bytes.toRequestBody(contentType.toMediaTypeOrNull())
-                                    val part = MultipartBody.Part.createFormData(
-                                        "file", "campaign_image.jpg", requestBody
-                                    )
-                                    RetrofitInstance.api.uploadCampaignMedia(campaign.id, part)
+                    val hours = scheduleHours.text.trim().toLongOrNull()
+                    if (hours != null && hours > 0) {
+                        // Fluxo de agendamento (sem entrega imediata)
+                        scope.launch {
+                            isSending = true
+                            feedbackMsg = null
+                            try {
+                                val operatorId = SessionManager.operatorId ?: run {
+                                    feedbackMsg = "Erro: sessao expirada."
+                                    return@launch
                                 }
-                            }
-
-                            val hours = scheduleHours.text.trim().toLongOrNull()
-                            if (hours != null && hours > 0) {
+                                val campaign = RetrofitInstance.api.createCampaign(
+                                    CampaignRequestDto(
+                                        titulo = titulo.text.trim(),
+                                        mensagem = mensagem.text.trim(),
+                                        targetAudience = targetAudience,
+                                        segmentId = selectedSegmentId,
+                                        operatorId = operatorId
+                                    )
+                                )
+                                imageUri?.let { uri ->
+                                    withContext(Dispatchers.IO) {
+                                        val inputStream = context.contentResolver.openInputStream(uri)
+                                        val bytes = inputStream?.readBytes() ?: byteArrayOf()
+                                        inputStream?.close()
+                                        val contentType = context.contentResolver.getType(uri) ?: "image/jpeg"
+                                        val requestBody = bytes.toRequestBody(contentType.toMediaTypeOrNull())
+                                        val part = MultipartBody.Part.createFormData(
+                                            "file", "campaign_image.jpg", requestBody
+                                        )
+                                        RetrofitInstance.api.uploadCampaignMedia(campaign.id, part)
+                                    }
+                                }
                                 val scheduledAt = Instant.now().plus(hours, ChronoUnit.HOURS).toString()
                                 RetrofitInstance.api.scheduleCampaign(
                                     campaign.id,
                                     ScheduleRequestDto(scheduledAt = scheduledAt)
                                 )
                                 feedbackMsg = "Campanha agendada para ${hours}h a partir de agora!"
-                            } else {
-                                RetrofitInstance.api.sendCampaign(campaign.id)
-                                feedbackMsg = "Campanha enviada com sucesso!"
+                                titulo = TextFieldValue("")
+                                mensagem = TextFieldValue("")
+                                scheduleHours = TextFieldValue("")
+                                imageUri = null
+                            } catch (e: Exception) {
+                                feedbackMsg = "Erro ao agendar campanha: ${e.message}"
+                            } finally {
+                                isSending = false
                             }
-                            titulo = TextFieldValue("")
-                            mensagem = TextFieldValue("")
-                            scheduleHours = TextFieldValue("")
-                            imageUri = null
-                        } catch (e: Exception) {
-                            feedbackMsg = "Erro ao enviar campanha: ${e.message}"
-                        } finally {
-                            isSending = false
                         }
+                    } else {
+                        // Envio imediato: abre seleção de destinatários
+                        feedbackMsg = null
+                        showRecipientsDialog = true
                     }
                 },
                 enabled = !isSending,
@@ -399,4 +477,149 @@ fun CampaignScreenPreview() {
             onSegmentsClick = {}
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RecipientsDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (List<Client>) -> Unit
+) {
+    var clients by remember { mutableStateOf<List<Client>>(emptyList()) }
+    var selectedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        try {
+            clients = RetrofitInstance.api.getClients()
+        } catch (e: Exception) {
+            errorMessage = "Erro ao carregar clientes: ${e.message}"
+        } finally {
+            isLoading = false
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF1C1F24),
+        title = {
+            Text(
+                "Selecionar destinatários",
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Box(modifier = Modifier.heightIn(min = 200.dp, max = 400.dp)) {
+                when {
+                    isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color.White)
+                    }
+                    errorMessage != null -> Text(errorMessage!!, color = Color.Red)
+                    clients.isEmpty() -> Text(
+                        "Nenhum cliente cadastrado. Cadastre clientes primeiro.",
+                        color = Color(0xFF9EABBA),
+                        fontSize = 14.sp
+                    )
+                    else -> Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "${selectedIds.size}/${clients.size} selecionados",
+                                color = Color(0xFF9EABBA),
+                                fontSize = 13.sp
+                            )
+                            TextButton(onClick = {
+                                selectedIds = if (selectedIds.size == clients.size) {
+                                    emptySet()
+                                } else {
+                                    clients.map { it.id }.toSet()
+                                }
+                            }) {
+                                Text(
+                                    if (selectedIds.size == clients.size) "Limpar" else "Selecionar todos",
+                                    color = Color(0xFF1E88E5),
+                                    fontSize = 13.sp
+                                )
+                            }
+                        }
+                        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                            items(clients) { cliente ->
+                                val checked = selectedIds.contains(cliente.id)
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            selectedIds = if (checked) {
+                                                selectedIds - cliente.id
+                                            } else {
+                                                selectedIds + cliente.id
+                                            }
+                                        }
+                                        .padding(vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Checkbox(
+                                        checked = checked,
+                                        onCheckedChange = {
+                                            selectedIds = if (it) {
+                                                selectedIds + cliente.id
+                                            } else {
+                                                selectedIds - cliente.id
+                                            }
+                                        },
+                                        colors = CheckboxDefaults.colors(
+                                            checkedColor = Color(0xFF1E88E5),
+                                            uncheckedColor = Color(0xFF9EABBA)
+                                        )
+                                    )
+                                    Column(modifier = Modifier.padding(start = 4.dp)) {
+                                        Text(
+                                            cliente.nome,
+                                            color = Color.White,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        if (cliente.ramo.isNotBlank()) {
+                                            Text(
+                                                cliente.ramo,
+                                                color = Color(0xFF9EABBA),
+                                                fontSize = 11.sp
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val selected = clients.filter { it.id in selectedIds }
+                    if (selected.isNotEmpty()) onConfirm(selected)
+                },
+                enabled = selectedIds.isNotEmpty()
+            ) {
+                Text(
+                    "Enviar (${selectedIds.size})",
+                    color = if (selectedIds.isNotEmpty()) Color(0xFF1E88E5) else Color(0xFF666666),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar", color = Color(0xFF9EABBA))
+            }
+        }
+    )
 }
