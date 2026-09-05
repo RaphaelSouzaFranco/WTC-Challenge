@@ -1,3 +1,6 @@
+.idea/
+*.zip
+WTC Challenge.pdf
 *.iml
 .gradle
 /local.properties
